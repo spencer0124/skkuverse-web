@@ -33,9 +33,11 @@ Node is pinned in `.nvmrc`. The package manager is pinned in `package.json`.
 
 ## Conventions
 
-English everywhere except product copy, which is declared in `.conventions.json`. The
-policy and its enforcement live in the
-[umbrella repository](https://github.com/spencer0124/skkuverse).
+Work happens on `dev`; `main` is merge-only and updated by pull request. English everywhere
+except product copy, which is declared in `.conventions.json`. References to another
+repository carry the owner segment, as in `spencer0124/skkuverse#22`. The policies and their
+enforcement live in the
+[umbrella repository](https://github.com/spencer0124/skkuverse/tree/main/conventions).
 
 `packages/bridge` and `packages/tokens` are vendored copies with a single upstream owner,
 registered in the umbrella's `contracts/manifest.json` and hash-checked in CI. Edit them
