@@ -1,3 +1,9 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# One version per tool across the workspace. Members reference these with
+# `"typescript": "catalog:"`, so a bump happens here rather than in every
+# package.json.
+catalog:
+  typescript: ^5.9.3
