@@ -12,6 +12,7 @@
   "dependencies": {
     "@skkuverse/bridge": "workspace:*",
     "@skkuverse/tokens": "workspace:*",
+    "@skkuverse/ui": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^6.21.1"

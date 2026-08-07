@@ -29,6 +29,9 @@ importers:
       '@skkuverse/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
+      '@skkuverse/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       react:
         specifier: ^19.1.0
         version: 19.2.8
