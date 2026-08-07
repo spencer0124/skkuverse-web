@@ -32,6 +32,16 @@ function App() {
       <Route path="skku">
         <Route path="lostandfound" element={<LostAndFound />} />
       </Route>
+      {/*
+        Routes renders null when nothing matches, which was invisible under hash
+        routing: a bad fragment produced a blank screen nobody arrived at by
+        accident. Paths are typed, shared and mistyped, so an unmatched one now
+        has to render something. Note the host answers it 200 rather than 404 —
+        the SPA fallback serves the shell for any path — so the app's webview
+        shell, which only shows its error overlay above status 400, will not
+        offer a retry here.
+      */}
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 }
