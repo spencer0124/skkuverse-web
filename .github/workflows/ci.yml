@@ -40,3 +40,11 @@ jobs:
 
       - name: Conventions
         run: python3 "$RUNNER_TEMP/sv/exported/lint_conventions.py" --root .
+
+      # packages/bridge/src/types.ts and packages/tokens/src/*.ts are byte
+      # copies owned by skkuverse-app. This compares them against this repo's
+      # own .contracts.lock.json, so it is offline and cannot go red because
+      # someone edited the upstream — that drift arrives as the daily sync PR
+      # instead. Editing a copy here is what this catches.
+      - name: Contract integrity
+        run: python3 "$RUNNER_TEMP/sv/exported/sync_contracts.py" check --repo web --root .

@@ -1,0 +1,67 @@
+{
+  "lockVersion": 1,
+  "repo": "web",
+  "note": "Written by sync_contracts.py. Do not hand-edit, and never resolve a merge conflict here by hand - take either side, then re-run `pull --repo web`.",
+  "contracts": {
+    "bridge.message-types": {
+      "path": "packages/bridge/src/types.ts",
+      "sha256": "9595b3a43b6806ce7262bfa413a8c1933f34537422a16d275adfa87c9323ebde",
+      "producer": {
+        "repo": "app",
+        "path": "packages/bridge/src/types.ts",
+        "ref": "main",
+        "commit": "0ff4ea8bf96b592222c07732ca39670ac2eabc43",
+        "sha256": "9595b3a43b6806ce7262bfa413a8c1933f34537422a16d275adfa87c9323ebde"
+      },
+      "syncedAt": "2026-08-07T00:34:31Z"
+    },
+    "design.colors": {
+      "path": "packages/tokens/src/colors.ts",
+      "sha256": "f1a676cce4f9b65c7bf03f794d1f1eb9381104cc0685eded9019b6c91e73cd08",
+      "producer": {
+        "repo": "app",
+        "path": "packages/shared/src/tokens/colors.ts",
+        "ref": "main",
+        "commit": "0ff4ea8bf96b592222c07732ca39670ac2eabc43",
+        "sha256": "f1a676cce4f9b65c7bf03f794d1f1eb9381104cc0685eded9019b6c91e73cd08"
+      },
+      "syncedAt": "2026-08-07T00:34:32Z"
+    },
+    "design.radius": {
+      "path": "packages/tokens/src/radius.ts",
+      "sha256": "3d5326cafdaf5139adfb625b367c3c29b0e8bb622b46aa601dbe6b68a292ade3",
+      "producer": {
+        "repo": "app",
+        "path": "packages/shared/src/tokens/radius.ts",
+        "ref": "main",
+        "commit": "0ff4ea8bf96b592222c07732ca39670ac2eabc43",
+        "sha256": "3d5326cafdaf5139adfb625b367c3c29b0e8bb622b46aa601dbe6b68a292ade3"
+      },
+      "syncedAt": "2026-08-07T00:34:35Z"
+    },
+    "design.spacing": {
+      "path": "packages/tokens/src/spacing.ts",
+      "sha256": "9aecbfd463ef5eadd48f072e68b6c1553a3c43d89738878fe7e1e1f5680a5f9f",
+      "producer": {
+        "repo": "app",
+        "path": "packages/shared/src/tokens/spacing.ts",
+        "ref": "main",
+        "commit": "0ff4ea8bf96b592222c07732ca39670ac2eabc43",
+        "sha256": "9aecbfd463ef5eadd48f072e68b6c1553a3c43d89738878fe7e1e1f5680a5f9f"
+      },
+      "syncedAt": "2026-08-07T00:34:34Z"
+    },
+    "design.typography": {
+      "path": "packages/tokens/src/typography.ts",
+      "sha256": "e59079c504722028370022212545a20e782b42519b5b2d37800674f87398fa44",
+      "producer": {
+        "repo": "app",
+        "path": "packages/shared/src/tokens/typography.ts",
+        "ref": "main",
+        "commit": "0ff4ea8bf96b592222c07732ca39670ac2eabc43",
+        "sha256": "e59079c504722028370022212545a20e782b42519b5b2d37800674f87398fa44"
+      },
+      "syncedAt": "2026-08-07T00:34:33Z"
+    }
+  }
+}
