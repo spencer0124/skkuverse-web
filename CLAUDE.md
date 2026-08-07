@@ -69,6 +69,26 @@ preview deployments cannot exercise the bridge.
 **Colors come from `packages/tokens`.** A hex literal in a component is drift from the
 design system by definition, since the token file is the only place a color is decided.
 
+**`packages/ui` components answer to Toss's docs, not to `@skkuverse/sds`.** They implement
+the `@toss/tds-mobile` v2 contract — `color` / `variant` / `size` / `onClick` — which is the
+same design system's web branch. They are not conversions of the app's React Native
+components and do not track them, so a change in `skkuverse-app/packages/sds` implies
+nothing here. The prop tables are at <https://tossmini-docs.toss.im/tds-mobile/>, indexed in
+the local docs-mcp-server as `tds-mobile`.
+
+**Three parts of `packages/ui` do carry silent-drift risk**, because they are copies with no
+gate. `src/core/*`, `src/foundation/typography.ts` and `src/utils/*` are byte-identical to
+`skkuverse-app/packages/sds`; `src/foundation/colors.ts` and `src/core/ThemeProvider.tsx`
+differ by one import line each. Unlike `packages/tokens` and `packages/bridge`, none is
+registered in the umbrella's contract registry, so an upstream change reaches them only by
+hand. Register them if the theming layer starts moving.
+
+**Icons are Phosphor, emoji are Tossface** — the same choices the app makes.
+`@phosphor-icons/react` is the React build of the app's `phosphor-react-native` and shares
+its API, including the `*Icon` suffix and the `weight` prop. Import glyphs through
+`src/internal/icons.ts`, which uses per-icon paths: the package barrel re-exports over 1,500
+icons and makes a dev server transform every one of them.
+
 **The console trusts no token by itself.** Sign-in mints an identity for any email that
 asks for one, so authorization is an explicit claim checked server-side, and every query is
 scoped by owner in `skkuverse-server`. See
