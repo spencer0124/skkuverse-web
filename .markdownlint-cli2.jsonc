@@ -1,0 +1,26 @@
+{
+  // Docs convention gate. The writing rules themselves live in the umbrella's
+  // docs/README.md; this file only enforces what a Markdown linter can decide.
+  "config": {
+    "default": true,
+
+    // Disabled: rules that fight the documentation skeleton this fleet uses.
+    "MD013": false, // line-length — prose wraps by meaning, not by column
+    "MD033": false, // inline HTML — <details> and <br> are used deliberately
+    "MD024": { "siblings_only": true }, // duplicate headings — only banned among siblings
+    "MD036": false, // emphasis-as-heading — bold labels are idiomatic in tables
+    "MD028": false, // blank line in blockquote — `> summary` then `> [!NOTE]` is the schema
+
+    // Enforced. Listed explicitly even though `default: true` already sets them,
+    // so the intent survives a future default change.
+    "MD001": true, // no skipped heading levels
+    "MD003": { "style": "atx" },
+    "MD025": { "front_matter_title": "" }, // one H1 per document; frontmatter title is not a heading
+    "MD040": true, // code fences carry a language tag
+    "MD041": false // first-line H1 — conflicts with the frontmatter-then-summary pattern
+  },
+
+  "globs": ["**/*.md"],
+  "gitignore": true,
+  "ignores": ["node_modules", "**/node_modules", "**/CHANGELOG.md"]
+}

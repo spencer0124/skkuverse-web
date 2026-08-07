@@ -1,0 +1,12 @@
+{
+  "_note": "Per-repo exceptions to the shared conventions. Kept in the repo it exempts, so whoever adds an exception declares it in the same commit. Checked by the umbrella's exported/lint_conventions.py.",
+
+  "productCopy": [
+    "apps/webview/src/pages/**",
+    "apps/console/src/**"
+  ],
+
+  "frontmatterExempt": [],
+
+  "extraDocFolders": []
+}

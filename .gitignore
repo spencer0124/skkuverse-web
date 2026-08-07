@@ -1,0 +1,21 @@
+# Dependencies and build output
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+.envrc
+
+# Editor and OS
+.DS_Store
+*.log
+
+# Local agent state. Project-level CLAUDE.md lives at the repo root, not here.
+.claude/
+
+# Local MCP config — may contain credentials
+.mcp.json
