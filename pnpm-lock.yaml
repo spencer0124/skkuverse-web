@@ -79,6 +79,22 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  packages/ui:
+    dependencies:
+      '@skkuverse/tokens':
+        specifier: workspace:*
+        version: link:../tokens
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.2.18
+      react:
+        specifier: ^19.1.0
+        version: 19.2.8
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
 packages:
 
   '@alloc/quick-lru@5.2.0':
