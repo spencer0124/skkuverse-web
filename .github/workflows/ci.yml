@@ -25,6 +25,20 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
+
+      # The webview routes by path, which only works while the bundle is
+      # referenced from the root. A relative base emits ./assets/... , the
+      # browser resolves that against the current path, and the request lands on
+      # a path the build never wrote — which the SPA fallback answers with
+      # index.html at 200. The page is then blank with no failing status code
+      # anywhere, so nothing downstream of a deploy can catch it. This is the
+      # only place it is cheap to catch.
+      - name: Deep links survive the build
+        run: |
+          grep -q 'src="/assets/' apps/webview/dist/index.html
+          test -f apps/webview/dist/_redirects
+          test -f apps/webview/dist/_headers
+
       - run: pnpm lint:md
 
   conventions:
