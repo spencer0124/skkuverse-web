@@ -1,1 +1,1 @@
-export { TextButton, default, type TextButtonProps } from './TextButton';
+export { TextButton, default, type TextButtonProps, type TextButtonSize, type TextButtonVariant } from './TextButton';

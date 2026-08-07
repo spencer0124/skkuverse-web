@@ -1,10 +1,15 @@
 /**
- * Button — converted from skkuverse-app
- * `packages/sds/src/components/button/Button.tsx`.
+ * Button — built to the @toss/tds-mobile v2 contract.
  *
- * Props match the upstream API. The Reanimated press spring, dim overlay and
- * staggered loader pulse become a CSS transform transition, an opacity
- * transition, and a keyframe animation with per-dot delays.
+ * Not a rename of SDS's Button. The web system's prop names exist because the
+ * React Native ones break on the DOM: `type` there was a colour variant, while
+ * `type` on a button element means submit/reset. v2 renamed it `color` and gave
+ * `type` back to HTML, which is what this implements.
+ *
+ * Usage:
+ *   <Button color="primary" variant="fill" size="xlarge" display="full" onClick={submit}>
+ *     지금 보내기
+ *   </Button>
  */
 import React, {
   Children,
@@ -13,64 +18,65 @@ import React, {
   useCallback,
   useMemo,
   useState,
+  type AnchorHTMLAttributes,
   type ButtonHTMLAttributes,
   type CSSProperties,
-  type MouseEvent,
   type ReactNode,
 } from 'react';
 import { SdsColors } from '@skkuverse/tokens';
-import { ThemeProvider } from '../../core/ThemeProvider';
-import { useTheme } from '../../core/ThemeProvider';
-import { Txt } from '../txt';
+import { ThemeProvider, useTheme } from '../../core/ThemeProvider';
+import { useTypographyTheme } from '../../core/TypographyProvider';
+import { FONT_FAMILY, fontWeightMap, type TypographyKeys } from '../../foundation/typography';
 import { mergeStyles, type Style } from '../../internal/style';
 import { ensureKeyframes, TRANSITION } from '../../internal/keyframes';
 
 // ── Types ──
 
-export interface ButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style' | 'type' | 'color' | 'onClick'> {
+export type ButtonColor = 'primary' | 'danger' | 'light' | 'dark';
+export type ButtonVariant = 'fill' | 'weak';
+export type ButtonDisplay = 'inline' | 'block' | 'full';
+export type ButtonSize = 'small' | 'medium' | 'large' | 'xlarge';
+
+type NativeButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style' | 'color'>;
+type NativeAnchorProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'style' | 'color' | 'type'>;
+
+export interface ButtonProps extends NativeButtonProps, Pick<NativeAnchorProps, 'href' | 'target' | 'rel'> {
   children: ReactNode;
-  onPress?: (event: MouseEvent<HTMLButtonElement>) => void;
+  /** Renders an anchor instead of a button. @default 'button' */
+  as?: 'button' | 'a';
   /** @default 'primary' */
-  type?: 'primary' | 'danger' | 'light' | 'dark';
+  color?: ButtonColor;
   /** @default 'fill' */
-  style?: 'fill' | 'weak';
+  variant?: ButtonVariant;
   /** @default 'inline' */
-  display?: 'block' | 'full' | 'inline';
-  /** @default 'big' */
-  size?: 'big' | 'large' | 'medium' | 'tiny';
+  display?: ButtonDisplay;
+  /** @default 'xlarge' */
+  size?: ButtonSize;
   /** @default false */
   loading?: boolean;
   /** @default false */
   disabled?: boolean;
-  viewStyle?: Style;
-  color?: string;
+  /** Overrides the resolved text colour. */
+  textColor?: string;
+  style?: Style;
   containerStyle?: Style;
   textStyle?: Style;
   leftAccessory?: ReactNode;
 }
 
-type ButtonSize = NonNullable<ButtonProps['size']>;
-type ButtonDisplay = NonNullable<ButtonProps['display']>;
-
-// ── Size → Typography mapping (from TDS) ──
-
-const sizeToTypography = {
-  tiny: 't7' as const,
-  medium: 't6' as const,
-  large: 'st9' as const,
-  big: 'st9' as const,
+const sizeToTypography: Record<ButtonSize, TypographyKeys> = {
+  small: 't7',
+  medium: 't6',
+  large: 'st9',
+  xlarge: 'st9',
 };
 
-// ── Type → primary color mapping ──
-
-const typeToColor: Record<string, string> = {
+/** Colour names other than `primary` resolve through a theme seed override. */
+const colorToSeed: Record<Exclude<ButtonColor, 'primary'>, string> = {
   danger: SdsColors.red500,
   light: '#FFFFFFDE', // whiteOpacity900
   dark: SdsColors.grey700,
 };
-
-// ── Container styles per size (from TDS) ──
 
 const containerBase: CSSProperties = {
   display: 'flex',
@@ -82,10 +88,10 @@ const containerBase: CSSProperties = {
 };
 
 export const containerStylesBySize: Record<ButtonSize, CSSProperties> = {
-  tiny: { paddingLeft: 10, paddingRight: 10, paddingTop: 2, paddingBottom: 2, minHeight: 32, minWidth: 52, borderRadius: 8 },
-  medium: { paddingLeft: 16, paddingRight: 16, paddingTop: 2, paddingBottom: 2, minHeight: 38, minWidth: 64, borderRadius: 10 },
-  large: { paddingLeft: 16, paddingRight: 16, paddingTop: 2, paddingBottom: 2, minHeight: 48, minWidth: 80, borderRadius: 14 },
-  big: { paddingLeft: 28, paddingRight: 28, paddingTop: 2, paddingBottom: 2, minHeight: 56, minWidth: 96, borderRadius: 16 },
+  small: { paddingLeft: 10, paddingRight: 10, minHeight: 32, minWidth: 52, borderRadius: 8 },
+  medium: { paddingLeft: 16, paddingRight: 16, minHeight: 38, minWidth: 64, borderRadius: 10 },
+  large: { paddingLeft: 16, paddingRight: 16, minHeight: 48, minWidth: 80, borderRadius: 14 },
+  xlarge: { paddingLeft: 28, paddingRight: 28, minHeight: 56, minWidth: 96, borderRadius: 16 },
 };
 
 const displayStyles: Record<ButtonDisplay, CSSProperties> = {
@@ -102,53 +108,54 @@ const containerDisplayStyles: Record<ButtonDisplay, CSSProperties> = {
 
 const ABSOLUTE_FILL: CSSProperties = { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 };
 
-// ── Inner Button (uses theme context) ──
+// ── Inner Button (reads the resolved theme) ──
 
-const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(function ButtonInner(
+const ButtonInner = forwardRef<HTMLButtonElement & HTMLAnchorElement, ButtonProps>(function ButtonInner(
   {
     children,
-    onPress,
-    size = 'big',
-    style: buttonStyle = 'fill',
+    as = 'button',
+    size = 'xlarge',
+    variant = 'fill',
     display = 'inline',
     disabled = false,
     loading = false,
-    viewStyle,
-    color: colorOverride,
+    textColor,
+    style,
     containerStyle,
     textStyle,
     leftAccessory,
     onPointerDown,
     onPointerUp,
-    // Consumed by the public Button below, which maps it to a theme override.
-    // Destructured here so it cannot reach the DOM, where `type` means
-    // button/submit/reset.
-    type: _variant,
+    onClick,
+    // Consumed by the outer Button, which maps it to a theme seed.
+    color: _color,
     ...restProps
   },
   ref,
 ) {
   ensureKeyframes();
   const { token } = useTheme();
+  const { typography } = useTypographyTheme();
   const isInteractive = !(disabled || loading);
   const [pressed, setPressed] = useState(false);
 
-  const colors = useMemo(() => {
-    if (buttonStyle === 'weak') {
-      return {
-        bg: token.button.backgroundWeakColor,
-        text: token.button.textWeakColor,
-        dim: token.button.dimWeakColor,
-        loader: token.button.loaderWeakColor,
-      };
-    }
-    return {
-      bg: token.button.backgroundFillColor,
-      text: token.button.textFillColor,
-      dim: token.button.dimFillColor,
-      loader: token.button.loaderFillColor,
-    };
-  }, [buttonStyle, token.button]);
+  const colors = useMemo(
+    () =>
+      variant === 'weak'
+        ? {
+            bg: token.button.backgroundWeakColor,
+            text: token.button.textWeakColor,
+            dim: token.button.dimWeakColor,
+            loader: token.button.loaderWeakColor,
+          }
+        : {
+            bg: token.button.backgroundFillColor,
+            text: token.button.textFillColor,
+            dim: token.button.dimFillColor,
+            loader: token.button.loaderFillColor,
+          },
+    [variant, token.button],
+  );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLButtonElement>) => {
@@ -166,39 +173,55 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(function ButtonIn
     [onPointerUp],
   );
 
-  // Upstream only scales the inline display, so the same condition applies here.
+  // Only the inline display scales on press, matching the design system.
   const scale = display === 'inline' && pressed ? 0.96 : 1;
-  const dimOpacity = pressed ? (buttonStyle === 'fill' ? 0.26 : 0.13) : 0;
+  const dimOpacity = pressed ? (variant === 'fill' ? 0.26 : 0.13) : 0;
+  const typo = typography[sizeToTypography[size]];
 
   const renderedChildren = Children.map(children, (child, idx) =>
     typeof child === 'string' || typeof child === 'number' ? (
-      <Txt
-        typography={sizeToTypography[size]}
-        color={colorOverride ?? colors.text}
-        style={textStyle || undefined}
-        fontWeight="semiBold"
+      <span
+        key={idx}
+        style={mergeStyles(
+          {
+            fontFamily: FONT_FAMILY,
+            fontSize: typo.fontSize,
+            lineHeight: `${typo.lineHeight}px`,
+            fontWeight: fontWeightMap.semiBold,
+            color: textColor ?? colors.text,
+          },
+          textStyle,
+        )}
       >
         {child}
-      </Txt>
+      </span>
     ) : (
       <Fragment key={idx}>{child}</Fragment>
     ),
   );
 
+  const Root = as as 'button';
+
   return (
-    <button
+    <Root
       ref={ref}
-      type="button"
-      aria-disabled={disabled}
-      disabled={disabled}
-      onClick={isInteractive ? onPress : undefined}
+      // `type` is HTML's, and callers set it. Only default it for a button.
+      {...(as === 'button' ? { type: restProps.type ?? 'button', disabled } : {})}
+      aria-disabled={disabled || undefined}
+      onClick={isInteractive ? onClick : undefined}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
       style={mergeStyles(
-        { background: 'none', border: 'none', padding: 0, cursor: isInteractive ? 'pointer' : 'default' },
+        {
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          textDecoration: 'none',
+          cursor: isInteractive ? 'pointer' : 'default',
+        },
         displayStyles[display],
-        viewStyle,
+        style,
       )}
       {...restProps}
     >
@@ -208,28 +231,25 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(function ButtonIn
           containerStylesBySize[size],
           containerDisplayStyles[display],
           {
-            opacity: disabled ? (buttonStyle === 'fill' ? 0.26 : 1) : 1,
+            opacity: disabled ? (variant === 'fill' ? 0.26 : 1) : 1,
             transform: `scale(${scale})`,
             transition: `transform ${TRANSITION.rapid}`,
           },
           containerStyle,
         )}
       >
-        {/* Background */}
         <span style={mergeStyles(ABSOLUTE_FILL, { backgroundColor: colors.bg })} />
 
-        {/* Content */}
         <span
           style={mergeStyles(
-            { display: 'flex', flexDirection: 'row', alignItems: 'center', position: 'relative' },
-            { opacity: disabled && buttonStyle !== 'fill' ? 0.38 : 1 },
+            { display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4, position: 'relative' },
+            { opacity: disabled && variant !== 'fill' ? 0.38 : 1 },
           )}
         >
           {leftAccessory}
           {renderedChildren}
         </span>
 
-        {/* Loading dots */}
         {loading && (
           <span
             style={mergeStyles(ABSOLUTE_FILL, {
@@ -256,7 +276,6 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(function ButtonIn
           </span>
         )}
 
-        {/* Dim overlay */}
         <span
           style={mergeStyles(ABSOLUTE_FILL, {
             backgroundColor: colors.dim,
@@ -266,20 +285,20 @@ const ButtonInner = forwardRef<HTMLButtonElement, ButtonProps>(function ButtonIn
           })}
         />
       </span>
-    </button>
+    </Root>
   );
 });
 
-// ── Public Button (wraps with ThemeProvider for type variants) ──
+// ── Public Button ──
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  function Button({ type, ...props }, ref) {
-    const tokenOverride = useMemo(() => {
-      if (type === undefined || type === 'primary') return {};
-      return { color: { primary: typeToColor[type] } };
-    }, [type]);
+export const Button = forwardRef<HTMLButtonElement & HTMLAnchorElement, ButtonProps>(
+  function Button({ color = 'primary', ...props }, ref) {
+    const tokenOverride = useMemo(
+      () => (color === 'primary' ? {} : { color: { primary: colorToSeed[color] } }),
+      [color],
+    );
 
-    if (type === undefined || type === 'primary') {
+    if (color === 'primary') {
       return <ButtonInner {...props} ref={ref} />;
     }
 

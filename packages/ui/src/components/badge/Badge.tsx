@@ -1,84 +1,94 @@
 /**
  * Badge — small label component.
  *
- * Converted from skkuverse-app `packages/sds/src/components/badge/Badge.tsx`.
+ * Built to the @toss/tds-mobile v2 contract. The web Badge takes a **semantic**
+ * colour name rather than SDS's free-form `color` / `backgroundColor` strings,
+ * and derives both foreground and background from it, so a badge cannot be
+ * given a combination the design system never sanctioned.
  *
  * Usage:
- *   <Badge size="small" color={colors.blue500} backgroundColor={colors.blue50}>New</Badge>
+ *   <Badge color="blue" variant="fill" size="small">New</Badge>
  */
 import React from 'react';
-import { useAdaptive } from '../../core/AdaptiveColorProvider';
-import { Txt } from '../txt';
-import type { FontWeightKeys, TypographyKeys } from '../../foundation/typography';
+import { SdsColors } from '@skkuverse/tokens';
+import { useTypographyTheme } from '../../core/TypographyProvider';
+import { FONT_FAMILY, fontWeightMap, type TypographyKeys } from '../../foundation/typography';
 import { mergeStyles, type Style } from '../../internal/style';
+
+export type BadgeVariant = 'fill' | 'weak';
+export type BadgeSize = 'xsmall' | 'small' | 'medium' | 'large';
+export type BadgeColor = 'blue' | 'teal' | 'green' | 'red' | 'yellow' | 'elephant';
 
 export interface BadgeProps {
   children: string;
-  /** @default 'small' */
-  size?: 'large' | 'medium' | 'small' | 'tiny';
-  color?: string;
-  backgroundColor?: string;
-  fontWeight?: FontWeightKeys;
-  numberOfLines?: number;
+  variant: BadgeVariant;
+  size: BadgeSize;
+  color: BadgeColor;
   style?: Style;
 }
 
-type BadgeSize = NonNullable<BadgeProps['size']>;
+/**
+ * `elephant` is the design system's neutral grey. The rest map onto the token
+ * palette's 500 (fill) and 50 (weak) steps.
+ */
+const palette: Record<BadgeColor, { strong: string; weak: string }> = {
+  blue: { strong: SdsColors.blue500, weak: SdsColors.blue50 },
+  teal: { strong: SdsColors.teal500, weak: SdsColors.teal50 },
+  green: { strong: SdsColors.green500, weak: SdsColors.green50 },
+  red: { strong: SdsColors.red500, weak: SdsColors.red50 },
+  yellow: { strong: SdsColors.yellow500, weak: SdsColors.yellow50 },
+  elephant: { strong: SdsColors.grey600, weak: SdsColors.grey100 },
+};
 
-const sizeVariant: Record<BadgeSize, TypographyKeys> = {
-  tiny: 't7',
+const sizeTypography: Record<BadgeSize, TypographyKeys> = {
+  xsmall: 'st13',
   small: 't7',
   medium: 't6',
   large: 't5',
 };
 
-const sizePadding: Record<BadgeSize, { paddingLeft: number; paddingRight: number; paddingTop: number; paddingBottom: number }> = {
-  tiny: { paddingLeft: 4, paddingRight: 4, paddingTop: 1, paddingBottom: 1 },
-  small: { paddingLeft: 6, paddingRight: 6, paddingTop: 2, paddingBottom: 2 },
-  medium: { paddingLeft: 8, paddingRight: 8, paddingTop: 3, paddingBottom: 3 },
-  large: { paddingLeft: 10, paddingRight: 10, paddingTop: 4, paddingBottom: 4 },
+const sizeBox: Record<BadgeSize, { padX: number; padY: number; radius: number }> = {
+  xsmall: { padX: 4, padY: 1, radius: 4 },
+  small: { padX: 6, padY: 2, radius: 6 },
+  medium: { padX: 8, padY: 3, radius: 8 },
+  large: { padX: 10, padY: 4, radius: 10 },
 };
 
-const sizeBorderRadius: Record<BadgeSize, number> = {
-  tiny: 4,
-  small: 6,
-  medium: 8,
-  large: 10,
-};
+export default function Badge({ children, variant, size, color, style }: BadgeProps) {
+  const { typography } = useTypographyTheme();
+  const tone = palette[color];
+  const box = sizeBox[size];
+  const typo = typography[sizeTypography[size]];
 
-export default function Badge({
-  children,
-  size = 'small',
-  color,
-  backgroundColor,
-  fontWeight: fontWeightProp,
-  numberOfLines,
-  style,
-}: BadgeProps) {
-  const adaptive = useAdaptive();
-  const resolvedFontWeight = fontWeightProp ?? (size === 'tiny' ? 'semiBold' : 'bold');
+  const colors =
+    variant === 'fill'
+      ? { backgroundColor: tone.strong, color: SdsColors.background }
+      : { backgroundColor: tone.weak, color: tone.strong };
 
   return (
-    <div
+    <span
       style={mergeStyles(
-        { alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' },
-        sizePadding[size],
         {
-          borderRadius: sizeBorderRadius[size],
-          backgroundColor: backgroundColor ?? adaptive.grey100,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          alignSelf: 'flex-start',
+          fontFamily: FONT_FAMILY,
+          fontSize: typo.fontSize,
+          lineHeight: `${typo.lineHeight}px`,
+          fontWeight: fontWeightMap.bold,
+          paddingLeft: box.padX,
+          paddingRight: box.padX,
+          paddingTop: box.padY,
+          paddingBottom: box.padY,
+          borderRadius: box.radius,
         },
+        colors,
         style,
       )}
     >
-      <Txt
-        typography={sizeVariant[size]}
-        fontWeight={resolvedFontWeight}
-        color={color ?? adaptive.grey600}
-        numberOfLines={numberOfLines}
-      >
-        {children}
-      </Txt>
-    </div>
+      {children}
+    </span>
   );
 }
 
