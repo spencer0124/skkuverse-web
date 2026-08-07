@@ -5,12 +5,14 @@
  * toast with a button stays 5000ms, one without stays 3000ms, because a button
  * the user cannot reach in time is worse than none.
  *
- * `lottie` is not supported — this package carries no animation player, and the
- * `icon` path covers the same slot.
+ * `icon` and `lottie` are mutually exclusive upstream, and the props type says so
+ * rather than leaving it to a runtime check: passing both is a compile error.
+ * The Lottie renderer loads on demand, so a toast without an animation costs
+ * nothing.
  *
  * Usage:
- *   const toast = useToast();
- *   toast.open({ message: '보냈어요', icon: 'check' });
+ *   <Toast message="보냈어요" icon="check" />
+ *   <Toast message="처리 중이에요" lottie="https://…/loading.json" />
  */
 import React, { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
@@ -19,6 +21,7 @@ import { useTypographyTheme } from '../../core/TypographyProvider';
 import { FONT_FAMILY, fontWeightMap } from '../../foundation/typography';
 import { TRANSITION } from '../../internal/keyframes';
 import { CheckCircleIcon, InfoIcon, WarningCircleIcon, WarningIcon } from '../../internal/icons';
+import { LottiePlayer } from '../../internal/LottiePlayer';
 
 export type ToastPosition = 'top' | 'bottom';
 export type ToastIcon = 'check' | 'warning' | 'error' | 'info';
@@ -28,13 +31,12 @@ export interface ToastButton {
   onClick: () => void;
 }
 
-export interface ToastProps {
+interface ToastBaseProps {
   message: ReactNode;
   /** @default 'bottom' */
   type?: ToastPosition;
   /** Distance from the edge. Overrides the default inset. */
   gap?: number;
-  icon?: ToastIcon;
   button?: ToastButton;
   /** @default 5000 with a button, 3000 without */
   duration?: number;
@@ -42,6 +44,13 @@ export interface ToastProps {
   onClose?: () => void;
   portalContainer?: HTMLElement;
 }
+
+/** Upstream forbids using both; `never` makes that a compile error rather than a surprise. */
+type ToastDecoration =
+  | { icon?: ToastIcon; lottie?: never }
+  | { lottie?: string; icon?: never };
+
+export type ToastProps = ToastBaseProps & ToastDecoration;
 
 const iconFor: Record<ToastIcon, { Glyph: typeof CheckCircleIcon; color: string }> = {
   check: { Glyph: CheckCircleIcon, color: SdsColors.green500 },
@@ -55,6 +64,7 @@ export function Toast({
   type = 'bottom',
   gap,
   icon,
+  lottie,
   button,
   duration,
   open = true,
@@ -110,6 +120,7 @@ export function Toast({
         pointerEvents: visible ? 'auto' : 'none',
       }}
     >
+      {lottie ? <LottiePlayer src={lottie} size={24} /> : null}
       {chosen ? <chosen.Glyph size={20} weight="fill" color={chosen.color} aria-hidden /> : null}
       <span
         style={{

@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
-    "@skkuverse/tokens": "workspace:*"
+    "@skkuverse/tokens": "workspace:*",
+    "lottie-react": "^2.4.1"
   },
   "peerDependencies": {
     "react": ">=19",

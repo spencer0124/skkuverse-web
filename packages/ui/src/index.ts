@@ -59,3 +59,7 @@ export {
   type FontWeight,
   type FontWeightKeys,
 } from './foundation/typography';
+
+// ── Lottie ── loaded on demand; see internal/LottiePlayer.tsx for why.
+export { LottiePlayer, type LottiePlayerProps } from './internal/LottiePlayer';
+export { useLottieData } from './internal/useLottieData';
