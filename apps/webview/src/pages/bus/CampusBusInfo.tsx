@@ -1,3 +1,4 @@
+import { SdsColors } from '@skkuverse/tokens';
 import { openUrl } from '../../bridge';
 
 const seoulLat = 37.587308;
@@ -14,8 +15,8 @@ const s: Record<string, React.CSSProperties> = {
   root: {
     fontFamily:
       "'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-    background: '#FFFFFF',
-    color: '#191F28',
+    background: SdsColors.background,
+    color: SdsColors.grey900,
     WebkitFontSmoothing: 'antialiased',
     paddingBottom: 'env(safe-area-inset-bottom)',
     minHeight: '100vh',
@@ -25,7 +26,7 @@ const s: Record<string, React.CSSProperties> = {
   sectionLabel: {
     fontSize: 13,
     fontWeight: 600,
-    color: '#8B95A1',
+    color: SdsColors.grey500,
     letterSpacing: '0.02em',
     marginBottom: 8,
   },
@@ -41,14 +42,14 @@ const s: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: 6,
     fontSize: 14,
-    color: '#4E5968',
+    color: SdsColors.grey700,
     lineHeight: 1.5,
   },
   opDot: {
     width: 4,
     height: 4,
     borderRadius: '50%',
-    background: '#B0B8C1',
+    background: SdsColors.grey400,
     flexShrink: 0,
   },
   opCaution: {
@@ -76,7 +77,7 @@ const s: Record<string, React.CSSProperties> = {
     alignItems: 'flex-start',
     gap: 10,
     fontSize: 14,
-    color: '#4E5968',
+    color: SdsColors.grey700,
     lineHeight: 1.6,
     letterSpacing: '-0.01em',
   },
@@ -85,7 +86,7 @@ const s: Record<string, React.CSSProperties> = {
     width: 4,
     height: 4,
     borderRadius: '50%',
-    background: '#B0B8C1',
+    background: SdsColors.grey400,
     marginTop: 9,
   },
   routeCard: {
@@ -104,7 +105,7 @@ const s: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: 5,
     padding: '5px 12px',
-    background: '#fff',
+    background: SdsColors.background,
     borderRadius: 8,
     fontSize: 14,
     fontWeight: 700,
@@ -131,7 +132,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: '7px 0',
     fontSize: 15,
     fontWeight: 500,
-    color: '#4E5968',
+    color: SdsColors.grey700,
     letterSpacing: '-0.01em',
   },
   routeStopTerminal: {
@@ -139,7 +140,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: '7px 0',
     fontSize: 15,
     fontWeight: 700,
-    color: '#191F28',
+    color: SdsColors.grey900,
     letterSpacing: '-0.01em',
   },
   boardingInfo: {
@@ -150,14 +151,14 @@ const s: Record<string, React.CSSProperties> = {
   boardingLabel: {
     fontSize: 12,
     fontWeight: 600,
-    color: '#8B95A1',
+    color: SdsColors.grey500,
     letterSpacing: '0.02em',
     marginBottom: 6,
   },
   boardingName: {
     fontSize: 15,
     fontWeight: 700,
-    color: '#191F28',
+    color: SdsColors.grey900,
     letterSpacing: '-0.01em',
     marginBottom: 12,
   },
@@ -173,8 +174,8 @@ const s: Record<string, React.CSSProperties> = {
     fontSize: 13,
     fontWeight: 600,
     textDecoration: 'none',
-    color: '#191F28',
-    background: '#fff',
+    color: SdsColors.grey900,
+    background: SdsColors.background,
     border: 'none',
     cursor: 'pointer',
     letterSpacing: '-0.01em',
@@ -209,11 +210,11 @@ const s: Record<string, React.CSSProperties> = {
     textAlign: 'left',
   },
   contactName: { fontSize: 16, fontWeight: 600, letterSpacing: '-0.01em' },
-  contactSub: { fontSize: 13, color: '#8B95A1', marginTop: 2 },
+  contactSub: { fontSize: 13, color: SdsColors.grey500, marginTop: 2 },
   contactNumber: {
     fontSize: 15,
     fontWeight: 500,
-    color: '#3182F6',
+    color: SdsColors.blue500,
     flexShrink: 0,
   },
 };
@@ -223,7 +224,7 @@ function ArrowIcon() {
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
       <path
         d="M3 7h8m0 0L8 4m3 3L8 10"
-        stroke="#191F28"
+        stroke={SdsColors.grey900}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -241,8 +242,10 @@ function RouteStop({ name, terminal }: { name: string; terminal?: boolean }) {
     width: 12,
     height: 12,
     borderRadius: '50%',
-    background: terminal ? '#191F28' : '#fff',
-    border: terminal ? '2.5px solid #191F28' : '2.5px solid #B0B8C1',
+    background: terminal ? SdsColors.grey900 : SdsColors.background,
+    border: terminal
+      ? `2.5px solid ${SdsColors.grey900}`
+      : `2.5px solid ${SdsColors.grey400}`,
   };
 
   return (
@@ -273,7 +276,7 @@ function MapButtons({
           <rect width="16" height="16" rx="4" fill="#03C75A" />
           <path
             d="M4 11V5h1.6l2.8 4V5h1.6v6h-1.6L5.6 7v4H4z"
-            fill="#fff"
+            fill={SdsColors.background}
           />
         </svg>
         네이버

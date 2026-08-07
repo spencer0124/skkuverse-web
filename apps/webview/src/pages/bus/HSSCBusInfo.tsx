@@ -1,11 +1,12 @@
+import { SdsColors } from '@skkuverse/tokens';
 import { openUrl } from '../../bridge';
 
 const styles: Record<string, React.CSSProperties> = {
   root: {
     fontFamily:
       "'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-    background: '#FFFFFF',
-    color: '#191F28',
+    background: SdsColors.background,
+    color: SdsColors.grey900,
     WebkitFontSmoothing: 'antialiased',
     paddingBottom: 'env(safe-area-inset-bottom)',
     minHeight: '100vh',
@@ -19,7 +20,7 @@ const styles: Record<string, React.CSSProperties> = {
   sectionLabel: {
     fontSize: 13,
     fontWeight: 600,
-    color: '#8B95A1',
+    color: SdsColors.grey500,
     letterSpacing: '0.02em',
     marginBottom: 8,
   },
@@ -35,14 +36,14 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: 6,
     fontSize: 14,
-    color: '#4E5968',
+    color: SdsColors.grey700,
     lineHeight: 1.5,
   },
   opDot: {
     width: 4,
     height: 4,
     borderRadius: '50%',
-    background: '#B0B8C1',
+    background: SdsColors.grey400,
     flexShrink: 0,
   },
   timeRow: {
@@ -60,7 +61,7 @@ const styles: Record<string, React.CSSProperties> = {
   timeBadgeLabel: {
     fontSize: 13,
     fontWeight: 600,
-    color: '#8B95A1',
+    color: SdsColors.grey500,
     marginBottom: 10,
   },
   timeBadgeValue: {
@@ -77,7 +78,7 @@ const styles: Record<string, React.CSSProperties> = {
   payGroupLabel: {
     fontSize: 13,
     fontWeight: 600,
-    color: '#8B95A1',
+    color: SdsColors.grey500,
     marginBottom: 10,
   },
   payCard: {
@@ -92,7 +93,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '5px 0',
     fontSize: 15,
     fontWeight: 500,
-    color: '#4E5968',
+    color: SdsColors.grey700,
     letterSpacing: '-0.01em',
   },
   payItemDisabled: {
@@ -102,7 +103,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '5px 0',
     fontSize: 15,
     fontWeight: 500,
-    color: '#B0B8C1',
+    color: SdsColors.grey400,
     letterSpacing: '-0.01em',
   },
   payIcon: {
@@ -113,7 +114,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   payNote: {
     fontSize: 13,
-    color: '#8B95A1',
+    color: SdsColors.grey500,
     marginTop: 4,
     paddingLeft: 30,
     lineHeight: 1.4,
@@ -158,7 +159,7 @@ const styles: Record<string, React.CSSProperties> = {
   contactNumber: {
     fontSize: 15,
     fontWeight: 500,
-    color: '#3182F6',
+    color: SdsColors.blue500,
   },
   routeCard: {
     background: '#F4F4F5',
@@ -176,7 +177,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: 5,
     padding: '5px 12px',
-    background: '#fff',
+    background: SdsColors.background,
     borderRadius: 8,
     fontSize: 14,
     fontWeight: 700,
@@ -204,7 +205,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '7px 0',
     fontSize: 15,
     fontWeight: 500,
-    color: '#4E5968',
+    color: SdsColors.grey700,
     letterSpacing: '-0.01em',
   },
   routeStopTerminal: {
@@ -212,7 +213,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '7px 0',
     fontSize: 15,
     fontWeight: 700,
-    color: '#191F28',
+    color: SdsColors.grey900,
     letterSpacing: '-0.01em',
   },
 };
@@ -222,7 +223,7 @@ function ArrowIcon() {
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
       <path
         d="M3 7h8m0 0L8 4m3 3L8 10"
-        stroke="#191F28"
+        stroke={SdsColors.grey900}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -241,8 +242,10 @@ function RouteStop({ name, terminal }: { name: string; terminal?: boolean }) {
     width: 12,
     height: 12,
     borderRadius: '50%',
-    background: terminal ? '#191F28' : '#fff',
-    border: terminal ? '2.5px solid #191F28' : '2.5px solid #B0B8C1',
+    background: terminal ? SdsColors.grey900 : SdsColors.background,
+    border: terminal
+      ? `2.5px solid ${SdsColors.grey900}`
+      : `2.5px solid ${SdsColors.grey400}`,
   };
 
   return (

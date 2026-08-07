@@ -1,11 +1,12 @@
+import { SdsColors } from '@skkuverse/tokens';
 import { openUrl } from '../../bridge';
 
 const s: Record<string, React.CSSProperties> = {
   root: {
     fontFamily:
       "'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-    background: '#FFFFFF',
-    color: '#191F28',
+    background: SdsColors.background,
+    color: SdsColors.grey900,
     WebkitFontSmoothing: 'antialiased',
     paddingBottom: 'calc(32px + env(safe-area-inset-bottom))',
     minHeight: '100vh',
@@ -15,7 +16,7 @@ const s: Record<string, React.CSSProperties> = {
   sectionLabel: {
     fontSize: 13,
     fontWeight: 600,
-    color: '#8B95A1',
+    color: SdsColors.grey500,
     letterSpacing: '0.02em',
     marginBottom: 8,
   },
@@ -40,8 +41,8 @@ const s: Record<string, React.CSSProperties> = {
     width: 32,
     height: 32,
     borderRadius: '50%',
-    background: '#191F28',
-    color: '#fff',
+    background: SdsColors.grey900,
+    color: SdsColors.background,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -66,7 +67,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   stepDesc: {
     fontSize: 14,
-    color: '#4E5968',
+    color: SdsColors.grey700,
     lineHeight: 1.5,
   },
   // CTA
@@ -91,7 +92,7 @@ const s: Record<string, React.CSSProperties> = {
     width: 40,
     height: 40,
     borderRadius: 12,
-    background: '#fff',
+    background: SdsColors.background,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -104,8 +105,8 @@ const s: Record<string, React.CSSProperties> = {
     letterSpacing: '-0.02em',
     textAlign: 'left',
   },
-  ctaSub: { fontSize: 13, color: '#8B95A1', marginTop: 2 },
-  ctaArrow: { color: '#B0B8C1' },
+  ctaSub: { fontSize: 13, color: SdsColors.grey500, marginTop: 2 },
+  ctaArrow: { color: SdsColors.grey400 },
   // Info card
   infoCard: {
     background: '#F4F4F5',
@@ -128,7 +129,7 @@ const s: Record<string, React.CSSProperties> = {
     width: 36,
     height: 36,
     borderRadius: 10,
-    background: '#fff',
+    background: SdsColors.background,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -144,9 +145,9 @@ const s: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     padding: '6px 0',
   },
-  infoLabel: { fontSize: 14, color: '#8B95A1' },
-  infoValue: { fontSize: 14, fontWeight: 600, color: '#4E5968' },
-  infoValuePhone: { fontSize: 14, fontWeight: 600, color: '#3182F6' },
+  infoLabel: { fontSize: 14, color: SdsColors.grey500 },
+  infoValue: { fontSize: 14, fontWeight: 600, color: SdsColors.grey700 },
+  infoValuePhone: { fontSize: 14, fontWeight: 600, color: SdsColors.blue500 },
   infoDivider: { height: 1, background: '#E8E8EA', margin: '10px 0' },
   commonInfo: {
     background: '#F4F4F5',
@@ -160,12 +161,12 @@ const s: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     padding: '4px 0',
   },
-  commonInfoLabel: { fontSize: 14, color: '#8B95A1' },
-  commonInfoValue: { fontSize: 14, fontWeight: 600, color: '#4E5968' },
+  commonInfoLabel: { fontSize: 14, color: SdsColors.grey500 },
+  commonInfoValue: { fontSize: 14, fontWeight: 600, color: SdsColors.grey700 },
   commonInfoLink: {
     fontSize: 14,
     fontWeight: 600,
-    color: '#3182F6',
+    color: SdsColors.blue500,
     textDecoration: 'none',
     background: 'none',
     border: 'none',
@@ -176,7 +177,7 @@ const s: Record<string, React.CSSProperties> = {
   phoneBtn: {
     fontSize: 14,
     fontWeight: 600,
-    color: '#3182F6',
+    color: SdsColors.blue500,
     textDecoration: 'none',
     background: 'none',
     border: 'none',
@@ -327,13 +328,13 @@ function LostAndFound() {
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M10 2L3 6v8l7 4 7-4V6l-7-4z"
-                  stroke="#191F28"
+                  stroke={SdsColors.grey900}
                   strokeWidth="1.5"
                   strokeLinejoin="round"
                 />
                 <path
                   d="M10 10v8M3 6l7 4 7-4"
-                  stroke="#191F28"
+                  stroke={SdsColors.grey900}
                   strokeWidth="1.5"
                   strokeLinejoin="round"
                 />
@@ -363,14 +364,14 @@ function LostAndFound() {
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M4 16V6a2 2 0 012-2h8a2 2 0 012 2v10"
-                  stroke="#191F28"
+                  stroke={SdsColors.grey900}
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
                   d="M2 16h16M7 8h6M7 11h4"
-                  stroke="#191F28"
+                  stroke={SdsColors.grey900}
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
