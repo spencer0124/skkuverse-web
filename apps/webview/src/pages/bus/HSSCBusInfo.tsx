@@ -15,7 +15,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '28px 20px',
   },
   sectionBorder: {
-    borderTop: '8px solid #F4F4F5',
+    borderTop: `8px solid ${SdsColors.grey100}`,
   },
   sectionLabel: {
     fontSize: 13,
@@ -53,7 +53,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   timeBadge: {
     flex: 1,
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     padding: 20,
     textAlign: 'center',
@@ -82,7 +82,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 10,
   },
   payCard: {
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 14,
     padding: '16px 18px',
   },
@@ -124,7 +124,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '16px 0',
-    borderBottom: '1px solid #F2F3F5',
+    borderBottom: `1px solid ${SdsColors.grey100}`,
     textDecoration: 'none',
     color: 'inherit',
     cursor: 'pointer',
@@ -133,7 +133,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: 'none',
     borderBottomStyle: 'solid',
     borderBottomWidth: 1,
-    borderBottomColor: '#F2F3F5',
+    borderBottomColor: SdsColors.grey100,
     width: '100%',
     fontFamily: 'inherit',
   },
@@ -162,13 +162,13 @@ const styles: Record<string, React.CSSProperties> = {
     color: SdsColors.blue500,
   },
   routeCard: {
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     padding: '22px 20px',
     marginBottom: 12,
   },
   routeCardLast: {
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     padding: '22px 20px',
   },
@@ -197,7 +197,7 @@ const styles: Record<string, React.CSSProperties> = {
     top: 8,
     bottom: 8,
     width: 2,
-    background: '#E8E8EA',
+    background: SdsColors.grey200,
     borderRadius: 1,
   },
   routeStop: {

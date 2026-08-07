@@ -12,7 +12,7 @@ const s: Record<string, React.CSSProperties> = {
     minHeight: '100vh',
   },
   section: { padding: '28px 20px' },
-  sectionBorder: { borderTop: '8px solid #F4F4F5' },
+  sectionBorder: { borderTop: `8px solid ${SdsColors.grey100}` },
   sectionLabel: {
     fontSize: 13,
     fontWeight: 600,
@@ -53,7 +53,7 @@ const s: Record<string, React.CSSProperties> = {
   stepLine: {
     flex: 1,
     width: 2,
-    background: '#E8E8EA',
+    background: SdsColors.grey200,
     minHeight: 24,
   },
   stepContent: { paddingBottom: 28, flex: 1 },
@@ -77,7 +77,7 @@ const s: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '18px 20px',
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     textDecoration: 'none',
     color: 'inherit',
@@ -109,13 +109,13 @@ const s: Record<string, React.CSSProperties> = {
   ctaArrow: { color: SdsColors.grey400 },
   // Info card
   infoCard: {
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     padding: 20,
     marginBottom: 12,
   },
   infoCardLast: {
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     padding: 20,
   },
@@ -148,9 +148,9 @@ const s: Record<string, React.CSSProperties> = {
   infoLabel: { fontSize: 14, color: SdsColors.grey500 },
   infoValue: { fontSize: 14, fontWeight: 600, color: SdsColors.grey700 },
   infoValuePhone: { fontSize: 14, fontWeight: 600, color: SdsColors.blue500 },
-  infoDivider: { height: 1, background: '#E8E8EA', margin: '10px 0' },
+  infoDivider: { height: 1, background: SdsColors.grey200, margin: '10px 0' },
   commonInfo: {
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     padding: '16px 20px',
     marginBottom: 20,

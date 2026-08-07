@@ -22,7 +22,7 @@ const s: Record<string, React.CSSProperties> = {
     minHeight: '100vh',
   },
   section: { padding: '28px 20px' },
-  sectionBorder: { borderTop: '8px solid #F4F4F5' },
+  sectionBorder: { borderTop: `8px solid ${SdsColors.grey100}` },
   sectionLabel: {
     fontSize: 13,
     fontWeight: 600,
@@ -68,7 +68,7 @@ const s: Record<string, React.CSSProperties> = {
     letterSpacing: '-0.04em',
   },
   noticeCard: {
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     padding: 20,
   },
@@ -90,13 +90,13 @@ const s: Record<string, React.CSSProperties> = {
     marginTop: 9,
   },
   routeCard: {
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     padding: '22px 20px',
     marginBottom: 12,
   },
   routeCardLast: {
-    background: '#F4F4F5',
+    background: SdsColors.grey100,
     borderRadius: 16,
     padding: '22px 20px',
   },
@@ -124,7 +124,7 @@ const s: Record<string, React.CSSProperties> = {
     top: 8,
     bottom: 8,
     width: 2,
-    background: '#E8E8EA',
+    background: SdsColors.grey200,
     borderRadius: 1,
   },
   routeStop: {
@@ -146,7 +146,7 @@ const s: Record<string, React.CSSProperties> = {
   boardingInfo: {
     marginTop: 16,
     paddingTop: 16,
-    borderTop: '1px solid #E8E8EA',
+    borderTop: `1px solid ${SdsColors.grey200}`,
   },
   boardingLabel: {
     fontSize: 12,
@@ -186,13 +186,13 @@ const s: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '16px 0',
-    borderBottom: '1px solid #F2F3F5',
+    borderBottom: `1px solid ${SdsColors.grey100}`,
     cursor: 'pointer',
     background: 'none',
     border: 'none',
     borderBottomStyle: 'solid',
     borderBottomWidth: 1,
-    borderBottomColor: '#F2F3F5',
+    borderBottomColor: SdsColors.grey100,
     width: '100%',
     fontFamily: 'inherit',
     textAlign: 'left',
