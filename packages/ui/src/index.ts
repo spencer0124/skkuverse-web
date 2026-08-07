@@ -39,6 +39,10 @@ export { OverlayProvider, useOverlay } from './core/OverlayProvider';
 // style prop takes React.CSSProperties instead of a React Native style array.
 export * from './components';
 
+// ── Utils ── vendored verbatim from sds/src/utils; both are platform-free.
+export { useControlled } from './utils/useControlled';
+export { mergeRefs } from './utils/mergeRefs';
+
 // ── Conversion helpers, for components living outside this package ──
 export { mergeStyles, lineClamp, withAlpha, toBoxShadow, HAIRLINE, type Style } from './internal/style';
 export { useColorScheme, type ColorSchemeName } from './internal/useColorScheme';
