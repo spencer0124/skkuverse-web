@@ -34,6 +34,15 @@ export { AdaptiveColorProvider, useAdaptive } from './core/AdaptiveColorProvider
 export { TypographyProvider, useTypographyTheme, type TypographyTheme, type TypographyMap } from './core/TypographyProvider';
 export { OverlayProvider, useOverlay } from './core/OverlayProvider';
 
+// ── Components ──
+// Hand-converted from sds/src/components. Same semantic props as upstream; the
+// style prop takes React.CSSProperties instead of a React Native style array.
+export * from './components';
+
+// ── Conversion helpers, for components living outside this package ──
+export { mergeStyles, lineClamp, withAlpha, toBoxShadow, HAIRLINE, type Style } from './internal/style';
+export { useColorScheme, type ColorSchemeName } from './internal/useColorScheme';
+
 // ── Foundation ──
 export { getAdaptiveColors, colorSeeds, type ColorPreference, type ColorSeeds } from './foundation/colors';
 export {
