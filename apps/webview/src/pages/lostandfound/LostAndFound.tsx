@@ -1,402 +1,156 @@
-import { SdsColors } from '@skkuverse/tokens';
+import { useState } from 'react';
+import { Border, ListRow, Paragraph, StepperRow, Toast, useAdaptive } from '@skkuverse/ui';
 import { openUrl } from '../../bridge';
+import { Card, Page, Section } from '../../components/page';
 
-const s: Record<string, React.CSSProperties> = {
-  root: {
-    fontFamily:
-      "'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-    background: SdsColors.background,
-    color: SdsColors.grey900,
-    WebkitFontSmoothing: 'antialiased',
-    paddingBottom: 'calc(32px + env(safe-area-inset-bottom))',
-    minHeight: '100vh',
+const EMAIL = 'studentaid@skku.edu';
+
+const STEPS = [
+  { step: 1, title: '학생지원팀으로 전달', description: '누군가 주우면 1~2일 안에 학생지원팀으로 보내요' },
+  { step: 2, title: '게시판에 올려요', description: '학생지원팀에서 유실물 게시판에 1개월간 올려요' },
+  { step: 3, title: '1년 보관 후 폐기', description: '1년 동안 보관한 뒤 폐기해요' },
+];
+
+const BOARDS = [
+  {
+    icon: '🔍',
+    title: '물건을 찾고 있어요',
+    description: '잃어버린 물건을 찾고 있어요',
+    url: 'https://www.skku.edu/skku/campus/support/lost_and_found_2.do',
   },
-  section: { padding: '28px 20px' },
-  sectionBorder: { borderTop: `8px solid ${SdsColors.grey100}` },
-  sectionLabel: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: SdsColors.grey500,
-    letterSpacing: '0.02em',
-    marginBottom: 8,
+  {
+    icon: '📦',
+    title: '주인을 찾고 있어요',
+    description: '습득한 물건의 주인을 찾아요',
+    url: 'https://www.skku.edu/skku/campus/support/lost_and_found_3.do',
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 700,
-    letterSpacing: '-0.03em',
-    lineHeight: 1.4,
-    marginBottom: 20,
-  },
-  // Steps
-  steps: { display: 'flex', flexDirection: 'column' },
-  step: { display: 'flex', gap: 16, position: 'relative' },
-  stepIndicator: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    flexShrink: 0,
-    width: 32,
-  },
-  stepNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: '50%',
-    background: SdsColors.grey900,
-    color: SdsColors.background,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 14,
-    fontWeight: 700,
-    flexShrink: 0,
-  },
-  stepLine: {
-    flex: 1,
-    width: 2,
-    background: SdsColors.grey200,
-    minHeight: 24,
-  },
-  stepContent: { paddingBottom: 28, flex: 1 },
-  stepContentLast: { paddingBottom: 0, flex: 1 },
-  stepTitle: {
-    fontSize: 16,
-    fontWeight: 700,
-    letterSpacing: '-0.02em',
-    marginBottom: 4,
-    lineHeight: '32px',
-  },
-  stepDesc: {
-    fontSize: 14,
-    color: SdsColors.grey700,
-    lineHeight: 1.5,
-  },
-  // CTA
-  ctaGroup: { display: 'flex', flexDirection: 'column', gap: 10 },
-  ctaBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '18px 20px',
-    background: SdsColors.grey100,
-    borderRadius: 16,
-    textDecoration: 'none',
-    color: 'inherit',
-    cursor: 'pointer',
-    border: 'none',
-    width: '100%',
-    fontFamily: 'inherit',
-    textAlign: 'left',
-  },
-  ctaLeft: { display: 'flex', alignItems: 'center', gap: 14 },
-  ctaIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    background: SdsColors.background,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 20,
-    fontFamily: 'Tossface',
-  },
-  ctaText: {
-    fontSize: 16,
-    fontWeight: 600,
-    letterSpacing: '-0.02em',
-    textAlign: 'left',
-  },
-  ctaSub: { fontSize: 13, color: SdsColors.grey500, marginTop: 2 },
-  ctaArrow: { color: SdsColors.grey400 },
-  // Info card
-  infoCard: {
-    background: SdsColors.grey100,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 12,
-  },
-  infoCardLast: {
-    background: SdsColors.grey100,
-    borderRadius: 16,
-    padding: 20,
-  },
-  infoCardHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 14,
-  },
-  infoCardIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    background: SdsColors.background,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  infoCardCampus: {
-    fontSize: 16,
-    fontWeight: 700,
-    letterSpacing: '-0.02em',
-  },
-  infoRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '6px 0',
-  },
-  infoLabel: { fontSize: 14, color: SdsColors.grey500 },
-  infoValue: { fontSize: 14, fontWeight: 600, color: SdsColors.grey700 },
-  infoValuePhone: { fontSize: 14, fontWeight: 600, color: SdsColors.blue500 },
-  infoDivider: { height: 1, background: SdsColors.grey200, margin: '10px 0' },
-  commonInfo: {
-    background: SdsColors.grey100,
-    borderRadius: 16,
-    padding: '16px 20px',
-    marginBottom: 20,
-  },
-  commonInfoRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '4px 0',
-  },
-  commonInfoLabel: { fontSize: 14, color: SdsColors.grey500 },
-  commonInfoValue: { fontSize: 14, fontWeight: 600, color: SdsColors.grey700 },
-  commonInfoLink: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: SdsColors.blue500,
-    textDecoration: 'none',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    padding: 0,
-  },
-  phoneBtn: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: SdsColors.blue500,
-    textDecoration: 'none',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    padding: 0,
-  },
-};
+];
+
+const OFFICES = [
+  { campus: '인사캠', place: '600주년기념관 1층', display: '02-760-1077', tel: 'tel:027601077' },
+  { campus: '자과캠', place: '학생회관 종합행정실 1층', display: '031-290-5034', tel: 'tel:0312905034' },
+];
+
+function Chevron() {
+  const adaptive = useAdaptive();
+  return (
+    <svg width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden>
+      <path
+        d="M1 1l6 6-6 6"
+        stroke={adaptive.grey400}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function LabelledRow({ label, children }: { label: string; children: React.ReactNode }) {
+  const adaptive = useAdaptive();
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0' }}>
+      <Paragraph typography="t6" color={adaptive.grey500}>
+        {label}
+      </Paragraph>
+      {children}
+    </div>
+  );
+}
 
 function LostAndFound() {
-  const handleCopyEmail = () => {
+  const adaptive = useAdaptive();
+  const [toast, setToast] = useState<string | null>(null);
+
+  // Replaces a pair of alert() calls. A blocking dialog to confirm a copy is
+  // heavier than the action it reports, and inside the app's webview it stops
+  // the page rather than sitting beside it.
+  const copyEmail = () => {
     navigator.clipboard
-      .writeText('studentaid@skku.edu')
-      .then(() => {
-        alert('이메일 주소를 복사했어요');
-      })
-      .catch(() => {
-        alert('복사하지 못했어요');
-      });
+      .writeText(EMAIL)
+      .then(() => setToast('이메일 주소를 복사했어요'))
+      .catch(() => setToast('복사하지 못했어요'));
   };
 
   return (
-    <div style={s.root}>
-      {/* 1. 처리 절차 */}
-      <div style={s.section}>
-        <div style={s.sectionLabel}>유실물</div>
-        <div style={s.sectionTitle}>이렇게 처리돼요</div>
-        <div style={s.steps}>
-          <div style={s.step}>
-            <div style={s.stepIndicator}>
-              <div style={s.stepNumber}>1</div>
-              <div style={s.stepLine} />
-            </div>
-            <div style={s.stepContent}>
-              <div style={s.stepTitle}>학생지원팀으로 전달</div>
-              <div style={s.stepDesc}>
-                누군가 주우면 1~2일 안에 학생지원팀으로 보내요
-              </div>
-            </div>
-          </div>
-          <div style={s.step}>
-            <div style={s.stepIndicator}>
-              <div style={s.stepNumber}>2</div>
-              <div style={s.stepLine} />
-            </div>
-            <div style={s.stepContent}>
-              <div style={s.stepTitle}>게시판에 올려요</div>
-              <div style={s.stepDesc}>
-                학생지원팀에서 유실물 게시판에 1개월간 올려요
-              </div>
-            </div>
-          </div>
-          <div style={s.step}>
-            <div style={s.stepIndicator}>
-              <div style={s.stepNumber}>3</div>
-            </div>
-            <div style={s.stepContentLast}>
-              <div style={s.stepTitle}>1년 보관 후 폐기</div>
-              <div style={s.stepDesc}>1년 동안 보관한 뒤 폐기해요</div>
-            </div>
-          </div>
+    <Page>
+      <Section label="유실물" title="이렇게 처리돼요">
+        {STEPS.map((s, i) => (
+          <StepperRow
+            key={s.step}
+            step={s.step}
+            title={s.title}
+            description={s.description}
+            isLast={i === STEPS.length - 1}
+          />
+        ))}
+      </Section>
+
+      <Section label="분실물 게시판" title="게시판 바로가기" divided>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {BOARDS.map((b) => (
+            <Card key={b.url} style={{ padding: '4px 16px' }}>
+              <ListRow
+                left={<ListRow.AssetIcon>{b.icon}</ListRow.AssetIcon>}
+                contents={<ListRow.Texts type="2RowTypeA" top={b.title} bottom={b.description} />}
+                right={<Chevron />}
+                onClick={() => openUrl(b.url)}
+              />
+            </Card>
+          ))}
         </div>
-      </div>
+      </Section>
 
-      {/* 2. 게시판 바로가기 */}
-      <div style={{ ...s.section, ...s.sectionBorder }}>
-        <div style={s.sectionLabel}>분실물 게시판</div>
-        <div style={s.sectionTitle}>게시판 바로가기</div>
-        <div style={s.ctaGroup}>
-          <button
-            style={s.ctaBtn}
-            onClick={() =>
-              openUrl(
-                'https://www.skku.edu/skku/campus/support/lost_and_found_2.do',
-              )
-            }
-          >
-            <div style={s.ctaLeft}>
-              <div style={s.ctaIcon}>🔍</div>
-              <div>
-                <div style={s.ctaText}>물건을 찾고 있어요</div>
-                <div style={s.ctaSub}>잃어버린 물건을 찾고 있어요</div>
-              </div>
-            </div>
-            <div style={s.ctaArrow}>
-              <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
-                <path
-                  d="M1 1l6 6-6 6"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </button>
-          <button
-            style={s.ctaBtn}
-            onClick={() =>
-              openUrl(
-                'https://www.skku.edu/skku/campus/support/lost_and_found_3.do',
-              )
-            }
-          >
-            <div style={s.ctaLeft}>
-              <div style={s.ctaIcon}>📦</div>
-              <div>
-                <div style={s.ctaText}>주인을 찾고 있어요</div>
-                <div style={s.ctaSub}>습득한 물건의 주인을 찾아요</div>
-              </div>
-            </div>
-            <div style={s.ctaArrow}>
-              <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
-                <path
-                  d="M1 1l6 6-6 6"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* 3. 학생지원팀 안내 */}
-      <div style={{ ...s.section, ...s.sectionBorder }}>
-        <div style={s.sectionLabel}>안내</div>
-        <div style={s.sectionTitle}>학생지원팀</div>
-
-        <div style={s.commonInfo}>
-          <div style={s.commonInfoRow}>
-            <span style={s.commonInfoLabel}>운영시간</span>
-            <span style={s.commonInfoValue}>평일 09:00 ~ 17:30</span>
-          </div>
-          <div style={s.commonInfoRow}>
-            <span style={s.commonInfoLabel}>이메일</span>
-            <button style={s.commonInfoLink} onClick={handleCopyEmail}>
-              studentaid@skku.edu
-            </button>
-          </div>
-        </div>
-
-        <div style={s.infoCard}>
-          <div style={s.infoCardHeader}>
-            <div style={s.infoCardIcon}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M10 2L3 6v8l7 4 7-4V6l-7-4z"
-                  stroke={SdsColors.grey900}
-                  strokeWidth="1.5"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M10 10v8M3 6l7 4 7-4"
-                  stroke={SdsColors.grey900}
-                  strokeWidth="1.5"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <span style={s.infoCardCampus}>인사캠</span>
-          </div>
-          <div style={s.infoRow}>
-            <span style={s.infoLabel}>위치</span>
-            <span style={s.infoValue}>600주년기념관 1층</span>
-          </div>
-          <div style={s.infoDivider} />
-          <div style={s.infoRow}>
-            <span style={s.infoLabel}>전화</span>
+      <Section label="안내" title="학생지원팀" divided>
+        <Card style={{ marginBottom: 12 }}>
+          <LabelledRow label="운영시간">
+            <Paragraph typography="t6" fontWeight="medium">
+              평일 09:00 ~ 17:30
+            </Paragraph>
+          </LabelledRow>
+          <LabelledRow label="이메일">
             <button
-              style={s.phoneBtn}
-              onClick={() => openUrl('tel:027601077')}
+              type="button"
+              onClick={copyEmail}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
             >
-              02-760-1077
+              <Paragraph typography="t6" fontWeight="medium" color={adaptive.blue500}>
+                {EMAIL}
+              </Paragraph>
             </button>
-          </div>
-        </div>
+          </LabelledRow>
+        </Card>
 
-        <div style={s.infoCardLast}>
-          <div style={s.infoCardHeader}>
-            <div style={s.infoCardIcon}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M4 16V6a2 2 0 012-2h8a2 2 0 012 2v10"
-                  stroke={SdsColors.grey900}
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M2 16h16M7 8h6M7 11h4"
-                  stroke={SdsColors.grey900}
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+        {OFFICES.map((o, i) => (
+          <Card key={o.tel} style={{ marginBottom: i < OFFICES.length - 1 ? 12 : 0 }}>
+            <div style={{ marginBottom: 4 }}>
+              <Paragraph typography="t5" fontWeight="bold">
+                {o.campus}
+              </Paragraph>
             </div>
-            <span style={s.infoCardCampus}>자과캠</span>
-          </div>
-          <div style={s.infoRow}>
-            <span style={s.infoLabel}>위치</span>
-            <span style={s.infoValue}>학생회관 종합행정실 1층</span>
-          </div>
-          <div style={s.infoDivider} />
-          <div style={s.infoRow}>
-            <span style={s.infoLabel}>전화</span>
-            <button
-              style={s.phoneBtn}
-              onClick={() => openUrl('tel:0312905034')}
-            >
-              031-290-5034
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+            <LabelledRow label="위치">
+              <Paragraph typography="t6" fontWeight="medium">
+                {o.place}
+              </Paragraph>
+            </LabelledRow>
+            <Border />
+            <LabelledRow label="전화">
+              <button
+                type="button"
+                onClick={() => openUrl(o.tel)}
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              >
+                <Paragraph typography="t6" fontWeight="medium" color={adaptive.blue500}>
+                  {o.display}
+                </Paragraph>
+              </button>
+            </LabelledRow>
+          </Card>
+        ))}
+      </Section>
+
+      {toast && <Toast message={toast} icon="check" open onClose={() => setToast(null)} />}
+    </Page>
   );
 }
 

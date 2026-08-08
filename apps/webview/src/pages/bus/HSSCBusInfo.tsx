@@ -1,376 +1,141 @@
-import { SdsColors } from '@skkuverse/tokens';
+import { Badge, Border, ListRow, Paragraph, useAdaptive } from '@skkuverse/ui';
 import { openUrl } from '../../bridge';
+import { Card, NoteRow, Page, RouteDirection, RouteStop, RouteTimeline, Section } from '../../components/page';
 
-const styles: Record<string, React.CSSProperties> = {
-  root: {
-    fontFamily:
-      "'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-    background: SdsColors.background,
-    color: SdsColors.grey900,
-    WebkitFontSmoothing: 'antialiased',
-    paddingBottom: 'env(safe-area-inset-bottom)',
-    minHeight: '100vh',
-  },
-  section: {
-    padding: '28px 20px',
-  },
-  sectionBorder: {
-    borderTop: `8px solid ${SdsColors.grey100}`,
-  },
-  sectionLabel: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: SdsColors.grey500,
-    letterSpacing: '0.02em',
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 700,
-    letterSpacing: '-0.03em',
-    lineHeight: 1.4,
-    marginBottom: 20,
-  },
-  opRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-    fontSize: 14,
-    color: SdsColors.grey700,
-    lineHeight: 1.5,
-  },
-  opDot: {
-    width: 4,
-    height: 4,
-    borderRadius: '50%',
-    background: SdsColors.grey400,
-    flexShrink: 0,
-  },
-  timeRow: {
-    display: 'flex',
-    gap: 8,
-    marginTop: 16,
-  },
-  timeBadge: {
-    flex: 1,
-    background: SdsColors.grey100,
-    borderRadius: 16,
-    padding: 20,
-    textAlign: 'center',
-  },
-  timeBadgeLabel: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: SdsColors.grey500,
-    marginBottom: 10,
-  },
-  timeBadgeValue: {
-    fontSize: 17,
-    fontWeight: 700,
-    letterSpacing: '-0.02em',
-  },
-  feeHero: {
-    fontSize: 28,
-    fontWeight: 800,
-    letterSpacing: '-0.04em',
-    marginBottom: 16,
-  },
-  payGroupLabel: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: SdsColors.grey500,
-    marginBottom: 10,
-  },
-  payCard: {
-    background: SdsColors.grey100,
-    borderRadius: 14,
-    padding: '16px 18px',
-  },
-  payItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    padding: '5px 0',
-    fontSize: 15,
-    fontWeight: 500,
-    color: SdsColors.grey700,
-    letterSpacing: '-0.01em',
-  },
-  payItemDisabled: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    padding: '5px 0',
-    fontSize: 15,
-    fontWeight: 500,
-    color: SdsColors.grey400,
-    letterSpacing: '-0.01em',
-  },
-  payIcon: {
-    flexShrink: 0,
-    fontSize: 15,
-    width: 20,
-    textAlign: 'center',
-  },
-  payNote: {
-    fontSize: 13,
-    color: SdsColors.grey500,
-    marginTop: 4,
-    paddingLeft: 30,
-    lineHeight: 1.4,
-  },
-  contactItem: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '16px 0',
-    borderBottom: `1px solid ${SdsColors.grey100}`,
-    textDecoration: 'none',
-    color: 'inherit',
-    cursor: 'pointer',
-    transition: 'opacity 0.15s',
-    background: 'none',
-    border: 'none',
-    borderBottomStyle: 'solid',
-    borderBottomWidth: 1,
-    borderBottomColor: SdsColors.grey100,
-    width: '100%',
-    fontFamily: 'inherit',
-  },
-  contactItemLast: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '16px 0',
-    textDecoration: 'none',
-    color: 'inherit',
-    cursor: 'pointer',
-    transition: 'opacity 0.15s',
-    background: 'none',
-    border: 'none',
-    width: '100%',
-    fontFamily: 'inherit',
-  },
-  contactName: {
-    fontSize: 16,
-    fontWeight: 600,
-    letterSpacing: '-0.01em',
-  },
-  contactNumber: {
-    fontSize: 15,
-    fontWeight: 500,
-    color: SdsColors.blue500,
-  },
-  routeCard: {
-    background: SdsColors.grey100,
-    borderRadius: 16,
-    padding: '22px 20px',
-    marginBottom: 12,
-  },
-  routeCardLast: {
-    background: SdsColors.grey100,
-    borderRadius: 16,
-    padding: '22px 20px',
-  },
-  routeDirBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 5,
-    padding: '5px 12px',
-    background: SdsColors.background,
-    borderRadius: 8,
-    fontSize: 14,
-    fontWeight: 700,
-    letterSpacing: '-0.01em',
-    marginBottom: 18,
-  },
-  routeTimeline: {
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
-    paddingLeft: 22,
-  },
-  routeTimelineLine: {
-    content: "''",
-    position: 'absolute',
-    left: 5,
-    top: 8,
-    bottom: 8,
-    width: 2,
-    background: SdsColors.grey200,
-    borderRadius: 1,
-  },
-  routeStop: {
-    position: 'relative',
-    padding: '7px 0',
-    fontSize: 15,
-    fontWeight: 500,
-    color: SdsColors.grey700,
-    letterSpacing: '-0.01em',
-  },
-  routeStopTerminal: {
-    position: 'relative',
-    padding: '7px 0',
-    fontSize: 15,
-    fontWeight: 700,
-    color: SdsColors.grey900,
-    letterSpacing: '-0.01em',
-  },
-};
+const CONTACTS = [
+  { name: '학생지원팀', display: '02-760-1073', tel: 'tel:027601073' },
+  { name: '인사캠 관리팀', display: '02-760-0110', tel: 'tel:027600110' },
+];
 
-function ArrowIcon() {
+const TO_HYEHWA = ['농구장', '학생회관', '정문', '올림픽기념국민생활관', '혜화동 우체국', '혜화동로터리', '혜화역 1번출구'];
+const TO_CAMPUS = ['혜화역 1번출구', '혜화동로터리', '성균관대입구사거리', '정문', '600주년기념관'];
+
+function OperatingHours({ label, value }: { label: string; value: string }) {
+  const adaptive = useAdaptive();
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path
-        d="M3 7h8m0 0L8 4m3 3L8 10"
-        stroke={SdsColors.grey900}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <div style={{ flex: 1, background: adaptive.grey100, borderRadius: 16, padding: 20, textAlign: 'center' }}>
+      <Paragraph typography="t7" fontWeight="semibold" color={adaptive.grey500}>
+        {label}
+      </Paragraph>
+      <div style={{ marginTop: 10 }}>
+        <Paragraph typography="t5" fontWeight="bold">
+          {value}
+        </Paragraph>
+      </div>
+    </div>
   );
 }
 
-function RouteStop({ name, terminal }: { name: string; terminal?: boolean }) {
-  const dotStyle: React.CSSProperties = {
-    content: "''",
-    position: 'absolute',
-    left: -22,
-    top: '50%',
-    transform: 'translate(-1px, -50%)',
-    width: 12,
-    height: 12,
-    borderRadius: '50%',
-    background: terminal ? SdsColors.grey900 : SdsColors.background,
-    border: terminal
-      ? `2.5px solid ${SdsColors.grey900}`
-      : `2.5px solid ${SdsColors.grey400}`,
-  };
-
+function PayItem({ children, note, allowed }: { children: string; note?: string; allowed: boolean }) {
+  const adaptive = useAdaptive();
   return (
-    <div style={terminal ? styles.routeStopTerminal : styles.routeStop}>
-      <div style={dotStyle} />
-      {name}
-    </div>
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '5px 0' }}>
+        <span style={{ width: 20, textAlign: 'center', flexShrink: 0 }}>
+          <Paragraph typography="t6" color={allowed ? adaptive.grey700 : adaptive.grey400}>
+            {allowed ? '✓' : '✕'}
+          </Paragraph>
+        </span>
+        <Paragraph typography="t6" fontWeight="medium" color={allowed ? adaptive.grey700 : adaptive.grey400}>
+          {children}
+        </Paragraph>
+      </div>
+      {note && (
+        <div style={{ paddingLeft: 30, marginTop: 4 }}>
+          <Paragraph typography="t7" color={adaptive.grey500}>
+            {note}
+          </Paragraph>
+        </div>
+      )}
+    </>
   );
 }
 
 function HSSCBusInfo() {
-  return (
-    <div style={styles.root}>
-      {/* 1. 운행시간 */}
-      <div style={styles.section}>
-        <div style={styles.sectionLabel}>운행시간</div>
-        <div style={styles.sectionTitle}>월요일 ~ 금요일</div>
-        <div style={styles.opRow}>
-          <div style={styles.opDot} />
-          공휴일에는 쉬어요
-        </div>
-        <div style={styles.timeRow}>
-          <div style={styles.timeBadge}>
-            <div style={styles.timeBadgeLabel}>학기중</div>
-            <div style={styles.timeBadgeValue}>07:00 ~ 23:00</div>
-          </div>
-          <div style={styles.timeBadge}>
-            <div style={styles.timeBadgeLabel}>방학중</div>
-            <div style={styles.timeBadgeValue}>07:00 ~ 19:00</div>
-          </div>
-        </div>
-      </div>
+  const adaptive = useAdaptive();
 
-      {/* 2. 요금 및 결제 */}
-      <div style={{ ...styles.section, ...styles.sectionBorder }}>
-        <div style={styles.sectionLabel}>요금과 결제</div>
-        <div style={styles.feeHero}>400원</div>
+  return (
+    <Page>
+      <Section label="운행시간" title="월요일 ~ 금요일">
+        <NoteRow>공휴일에는 쉬어요</NoteRow>
+        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+          <OperatingHours label="학기중" value="07:00 ~ 23:00" />
+          <OperatingHours label="방학중" value="07:00 ~ 19:00" />
+        </div>
+      </Section>
+
+      <Section label="요금과 결제" divided>
+        <div style={{ marginBottom: 16 }}>
+          <Paragraph typography="st1" fontWeight="bold">
+            400원
+          </Paragraph>
+        </div>
 
         <div style={{ marginBottom: 20 }}>
-          <div style={styles.payGroupLabel}>결제할 수 있어요</div>
-          <div style={styles.payCard}>
-            <div style={styles.payItem}>
-              <span style={styles.payIcon}>✓</span>체크 / 신용카드
-            </div>
-            <div style={styles.payNote}>
-              후불교통결제가 되는 카드만 쓸 수 있어요
-            </div>
-            <div style={styles.payItem}>
-              <span style={styles.payIcon}>✓</span>T머니
-            </div>
-            <div style={styles.payItem}>
-              <span style={styles.payIcon}>✓</span>캐시비카드
-            </div>
+          <div style={{ marginBottom: 10 }}>
+            <Badge color="green" variant="weak" size="small">
+              결제할 수 있어요
+            </Badge>
           </div>
+          <Card>
+            <PayItem allowed note="후불교통결제가 되는 카드만 쓸 수 있어요">
+              체크 / 신용카드
+            </PayItem>
+            <PayItem allowed>T머니</PayItem>
+            <PayItem allowed>캐시비카드</PayItem>
+          </Card>
         </div>
 
         <div>
-          <div style={styles.payGroupLabel}>결제할 수 없어요</div>
-          <div style={styles.payCard}>
-            <div style={styles.payItemDisabled}>
-              <span style={styles.payIcon}>✕</span>현금
-            </div>
-            <div style={styles.payItemDisabled}>
-              <span style={styles.payIcon}>✕</span>회수권
-            </div>
+          <div style={{ marginBottom: 10 }}>
+            <Badge color="elephant" variant="weak" size="small">
+              결제할 수 없어요
+            </Badge>
           </div>
+          <Card>
+            <PayItem allowed={false}>현금</PayItem>
+            <PayItem allowed={false}>회수권</PayItem>
+          </Card>
         </div>
-      </div>
+      </Section>
 
-      {/* 3. 연락처 */}
-      <div style={{ ...styles.section, ...styles.sectionBorder }}>
-        <div style={styles.sectionLabel}>문의</div>
-        <div style={styles.sectionTitle}>연락처</div>
-        <button
-          style={styles.contactItem}
-          onClick={() => openUrl('tel:027601073')}
-        >
-          <span style={styles.contactName}>학생지원팀</span>
-          <span style={styles.contactNumber}>02-760-1073</span>
-        </button>
-        <button
-          style={styles.contactItemLast}
-          onClick={() => openUrl('tel:027600110')}
-        >
-          <span style={styles.contactName}>인사캠 관리팀</span>
-          <span style={styles.contactNumber}>02-760-0110</span>
-        </button>
-      </div>
+      <Section label="문의" title="연락처" divided>
+        {CONTACTS.map((c, i) => (
+          <div key={c.tel}>
+            <ListRow
+              contents={<ListRow.Texts type="1RowTypeA" top={c.name} />}
+              right={
+                <Paragraph typography="t6" fontWeight="medium" color={adaptive.blue500}>
+                  {c.display}
+                </Paragraph>
+              }
+              onClick={() => openUrl(c.tel)}
+            />
+            {i < CONTACTS.length - 1 && <Border />}
+          </div>
+        ))}
+      </Section>
 
-      {/* 4. 노선 */}
-      <div style={{ ...styles.section, ...styles.sectionBorder }}>
-        <div style={styles.sectionLabel}>노선</div>
-        <div style={styles.sectionTitle}>운행 경로</div>
+      <Section label="노선" title="운행 경로" divided>
+        <Card style={{ padding: '22px 20px', marginBottom: 12 }}>
+          <RouteDirection from="인사캠" to="혜화역" />
+          <RouteTimeline>
+            {TO_HYEHWA.map((name, i) => (
+              <RouteStop key={name} name={name} terminal={i === 0 || i === TO_HYEHWA.length - 1} />
+            ))}
+          </RouteTimeline>
+        </Card>
 
-        <div style={styles.routeCard}>
-          <div style={styles.routeDirBadge}>
-            인사캠 <ArrowIcon /> 혜화역
-          </div>
-          <div style={styles.routeTimeline}>
-            <div style={styles.routeTimelineLine} />
-            <RouteStop name="농구장" terminal />
-            <RouteStop name="학생회관" />
-            <RouteStop name="정문" />
-            <RouteStop name="올림픽기념국민생활관" />
-            <RouteStop name="혜화동 우체국" />
-            <RouteStop name="혜화동로터리" />
-            <RouteStop name="혜화역 1번출구" terminal />
-          </div>
-        </div>
-
-        <div style={styles.routeCardLast}>
-          <div style={styles.routeDirBadge}>
-            혜화역 <ArrowIcon /> 인사캠
-          </div>
-          <div style={styles.routeTimeline}>
-            <div style={styles.routeTimelineLine} />
-            <RouteStop name="혜화역 1번출구" terminal />
-            <RouteStop name="혜화동로터리" />
-            <RouteStop name="성균관대입구사거리" />
-            <RouteStop name="정문" />
-            <RouteStop name="600주년기념관" terminal />
-          </div>
-        </div>
-      </div>
-    </div>
+        <Card style={{ padding: '22px 20px' }}>
+          <RouteDirection from="혜화역" to="인사캠" />
+          <RouteTimeline>
+            {TO_CAMPUS.map((name, i) => (
+              <RouteStop key={name} name={name} terminal={i === 0 || i === TO_CAMPUS.length - 1} />
+            ))}
+          </RouteTimeline>
+        </Card>
+      </Section>
+    </Page>
   );
 }
 

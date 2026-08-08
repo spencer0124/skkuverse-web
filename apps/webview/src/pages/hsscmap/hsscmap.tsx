@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { Shadow, useAdaptive } from '@skkuverse/ui';
 import HSSCMapSVG from '../../assets/fastmap_skkubus.svg?react';
 import { handleSVGClick, type OverlayInfo } from './handleClick';
 import { sendMapSelect } from '../../bridge';
 
 function HSSCMap() {
+  const adaptive = useAdaptive();
   const [overlayInfo, setOverlayInfo] = useState<OverlayInfo | null>(null);
 
   const onSVGClick = (event: React.MouseEvent) => {
@@ -58,18 +60,43 @@ function HSSCMap() {
       <HSSCMapSVG className="h-screen w-auto pb-20 pt-0.5 px-2.5" />
       {overlayInfo && (
         <div
-          style={{ left: overlayInfo.x, top: overlayInfo.y }}
-          className="absolute flex flex-col items-center"
+          style={{
+            left: overlayInfo.x,
+            top: overlayInfo.y,
+            position: 'absolute',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
         >
-          {/* Tooltip Box */}
-          <div className="p-1 bg-white shadow-lg rounded-lg  border border-gray-300">
-            <div className="text-xs text-gray-700">
-              {/* {overlayInfo.placename} */}
+          {/* The marker. Colours come from the theme rather than Tailwind's
+              default palette: bg-white / border-gray-300 / text-gray-700 named
+              greys that no token decides, so the marker drifted from the rest
+              of the app whenever the palette did not happen to agree. */}
+          <Shadow shadow="medium">
+            <div
+              style={{
+                padding: 4,
+                background: adaptive.background,
+                borderRadius: 8,
+                border: `1px solid ${adaptive.grey200}`,
+                fontSize: 12,
+                lineHeight: '18px',
+              }}
+            >
               📍
             </div>
-          </div>
-          {/* Tooltip Arrow */}
-          <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-gray-300"></div>
+          </Shadow>
+          {/* Arrow. A CSS triangle, so its colour is a border colour. */}
+          <div
+            style={{
+              width: 0,
+              height: 0,
+              borderLeft: '5px solid transparent',
+              borderRight: '5px solid transparent',
+              borderTop: `5px solid ${adaptive.grey200}`,
+            }}
+          />
         </div>
       )}
     </div>
