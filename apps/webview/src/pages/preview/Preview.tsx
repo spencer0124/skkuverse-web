@@ -169,19 +169,33 @@ export default function Preview() {
 
       <Section name="Button">
         <Row>
-          {(['primary', 'danger', 'light', 'dark'] as const).map((c) => (
+          {(['primary', 'danger', 'dark'] as const).map((c) => (
             <Button key={c} color={c}>
               {c}
             </Button>
           ))}
         </Row>
         <Row>
-          {(['primary', 'danger', 'light', 'dark'] as const).map((c) => (
+          {(['primary', 'danger', 'dark'] as const).map((c) => (
             <Button key={c} color={c} variant="weak">
               {c} weak
             </Button>
           ))}
         </Row>
+        {/*
+          `light` paints white, so it is meant for a dark surface the way `dark`
+          is meant for a light one. On this page's background it is invisible
+          rather than broken — which looks identical to broken, so it gets a
+          backdrop it can actually be judged against.
+        */}
+        <div style={{ background: adaptive.grey900, borderRadius: 12, padding: 12 }}>
+          <Row>
+            <Button color="light">light</Button>
+            <Button color="light" variant="weak">
+              light weak
+            </Button>
+          </Row>
+        </div>
         <Row>
           {(['small', 'medium', 'large', 'xlarge'] as const).map((s) => (
             <Button key={s} size={s}>
@@ -404,18 +418,26 @@ export default function Preview() {
         </div>
       </BottomSheet>
 
+      {/*
+        Dialog's `title` and `description` must be composed, not passed as
+        strings. It renders them raw — `{title}{description}` with no wrapper —
+        so two bare strings concatenate onto one unstyled line. `Result` takes
+        identically named and typed props and wraps them itself, so a plain
+        string is right there and wrong here, with nothing at the type level to
+        tell them apart.
+      */}
       <Dialog.Alert
         open={alertOpen}
-        title="알림"
-        description="확인 버튼 하나만 있는 다이얼로그예요."
+        title={<Dialog.Title>알림</Dialog.Title>}
+        description={<Dialog.Description>확인 버튼 하나만 있는 다이얼로그예요.</Dialog.Description>}
         onClose={() => setAlertOpen(false)}
         alertButton={<Dialog.AlertButton onClick={() => setAlertOpen(false)}>확인</Dialog.AlertButton>}
       />
 
       <Dialog.Confirm
         open={confirmOpen}
-        title="정말 진행할까요?"
-        description="되돌릴 수 없어요."
+        title={<Dialog.Title>정말 진행할까요?</Dialog.Title>}
+        description={<Dialog.Description>되돌릴 수 없어요.</Dialog.Description>}
         onClose={() => setConfirmOpen(false)}
         cancelButton={<Dialog.CancelButton onClick={() => setConfirmOpen(false)}>닫기</Dialog.CancelButton>}
         confirmButton={<Dialog.ConfirmButton onClick={() => setConfirmOpen(false)}>진행</Dialog.ConfirmButton>}
