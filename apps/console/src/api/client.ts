@@ -14,13 +14,16 @@
  */
 import type {
   ConsoleUser,
+  DeviceCount,
   LayerSet,
   NotificationDraft,
   Place,
   PublishResult,
   SendRecord,
   Session,
+  TestSendResult,
   Topic,
+  TopicSet,
 } from './types';
 
 export interface ConsoleApi {
@@ -34,9 +37,25 @@ export interface ConsoleApi {
   // Notifications
   listTopics(): Promise<Topic[]>;
   listSends(): Promise<SendRecord[]>;
-  /** Resolves how many devices a topic set reaches, deduplicated. */
-  estimateReach(topics: string[]): Promise<number>;
+  /**
+   * How many devices this topic set reaches.
+   *
+   * Exact, not an estimate: the server runs the same
+   * `array-contains-any` query the send runs, with `.count()`. It counts
+   * devices rather than people, and is a slight ceiling because dead tokens are
+   * only cleaned up during a real send.
+   */
+  countDevices(topics: string[]): Promise<DeviceCount>;
+  /** Server-side validation, so a 400 surfaces before the confirm dialog. */
+  validate(draft: NotificationDraft): Promise<string[]>;
+  /** Sends only to the signed-in user's own devices. */
+  testSend(draft: NotificationDraft): Promise<TestSendResult>;
   send(draft: NotificationDraft): Promise<SendRecord>;
+
+  // Saved audiences
+  listTopicSets(): Promise<TopicSet[]>;
+  saveTopicSet(name: string, topics: string[]): Promise<TopicSet>;
+  deleteTopicSet(id: string): Promise<void>;
 
   // Festival
   listLayerSets(): Promise<LayerSet[]>;

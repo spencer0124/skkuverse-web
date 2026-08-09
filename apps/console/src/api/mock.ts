@@ -17,14 +17,18 @@
 import type { ConsoleApi } from './client';
 import type {
   ConsoleUser,
+  DeviceCount,
   LayerSet,
   NotificationDraft,
   Place,
   PublishResult,
   SendRecord,
   Session,
-  Topic,
+  TestSendResult,
+  TopicSet,
 } from './types';
+import { TOPICS } from './topics.fixture';
+import { lint, blocking, TOPIC_LIMIT } from '../lib/lint';
 
 /** Enough delay to see a loading state, short enough not to be annoying. */
 const LATENCY_MS = 320;
@@ -33,18 +37,51 @@ const wait = <T>(value: T): Promise<T> =>
 const fail = (message: string): Promise<never> =>
   new Promise((_, reject) => setTimeout(() => reject(new Error(message)), LATENCY_MS));
 
-const TOPICS: Topic[] = [
-  { id: 'category:academic', label: { ko: '학사', en: 'Academic' }, group: '고정 탭', subscriberCount: 4820 },
-  { id: 'category:scholarship', label: { ko: '장학', en: 'Scholarship' }, group: '고정 탭', subscriberCount: 3915 },
-  { id: 'category:career', label: { ko: '취업/진로', en: 'Career' }, group: '고정 탭', subscriberCount: 2740 },
-  { id: 'category:event', label: { ko: '행사', en: 'Event' }, group: '고정 탭', subscriberCount: 2103 },
-  { id: 'category:dorm', label: { ko: '기숙사', en: 'Dormitory' }, group: '고정 탭', subscriberCount: 1688 },
-  { id: 'dept:cse-undergrad', label: { ko: '소프트웨어학과 (학부)' }, group: '학과', subscriberCount: 612 },
-  { id: 'dept:biz-undergrad', label: { ko: '경영학과 (학부)' }, group: '학과', subscriberCount: 903 },
-  { id: 'dept:mech-undergrad', label: { ko: '기계공학부 (학부)' }, group: '학과', subscriberCount: 548 },
-  { id: 'dept:psych-undergrad', label: { ko: '심리학과 (학부)' }, group: '학과', subscriberCount: 271 },
-  { id: 'miniapp:eskara-2026', label: { ko: 'ESKARA 2026' }, group: '미니앱', subscriberCount: 1455 },
-];
+/**
+ * Synthetic devices, so `countDevices` can do a real set union.
+ *
+ * The previous mock returned `first + 0.88 × rest`, a fabricated dedup ratio.
+ * That mattered more than a wrong number usually would: `mock.ts` is the only
+ * executable description of these endpoints, so a server built to match it
+ * would have implemented the fabrication. Here each device subscribes to a
+ * plausible set and the count is `|union|`, which is what Firestore's
+ * `array-contains-any` actually returns.
+ */
+interface MockDevice {
+  id: string;
+  topics: string[];
+  locale: 'ko' | 'en';
+}
+
+const DEVICES: MockDevice[] = (() => {
+  const out: MockDevice[] = [];
+  const categories = TOPICS.filter((t) => t.id.startsWith('category:'));
+  const depts = TOPICS.filter((t) => t.id.startsWith('dept:'));
+  const others = TOPICS.filter((t) => !t.id.startsWith('category:') && !t.id.startsWith('dept:'));
+
+  // Deterministic: a mock that shuffles makes every reach number irreproducible
+  // and every screenshot an argument.
+  let seed = 20260809;
+  const rand = () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+
+  for (let i = 0; i < 6000; i += 1) {
+    const topics: string[] = [];
+    for (const c of categories) if (rand() < 0.45) topics.push(c.id);
+    // maxSelection on the dept tab is 5, so a student cannot follow more.
+    const deptCount = Math.floor(rand() * 3);
+    for (let d = 0; d < deptCount; d += 1) {
+      const pick = depts[Math.floor(rand() * depts.length)];
+      if (pick && !topics.includes(pick.id)) topics.push(pick.id);
+    }
+    for (const o of others) if (rand() < 0.06) topics.push(o.id);
+    if (topics.length === 0) continue;
+    out.push({ id: `dev_${i}`, topics, locale: rand() < 0.08 ? 'en' : 'ko' });
+  }
+  return out;
+})();
 
 const PLACES: Place[] = [
   { id: 'nsc-plaza-a1', layerSetId: 'eskara-2026', campus: 'nsc', name: { ko: 'A-1 구역' }, zone: '중앙광장', lifecycle: 'active', coordinates: [126.9755, 37.2923] },
@@ -126,9 +163,29 @@ const LAYER_SETS: LayerSet[] = [
 ];
 
 const SENDS: SendRecord[] = [
-  { id: 'snd_0031', sentAt: '2026-08-06T04:12:00.000Z', sentBy: 'zoyoong124@gmail.com', topics: ['category:academic'], title_ko: '2학기 수강신청 일정 안내', body_ko: '8월 12일 10시부터 시작해요.', status: 'sent', delivered: 4791, failed: 29 },
-  { id: 'snd_0030', sentAt: '2026-08-04T23:40:00.000Z', sentBy: 'zoyoong124@gmail.com', topics: ['miniapp:eskara-2026'], title_ko: 'ESKARA 2026 라인업 공개', body_ko: '메인 무대 라인업을 확인해 보세요.', status: 'partial', delivered: 1402, failed: 53 },
-  { id: 'snd_0029', sentAt: '2026-08-01T02:05:00.000Z', sentBy: 'zoyoong124@gmail.com', topics: ['category:scholarship', 'category:academic'], title_ko: '국가장학금 2차 신청', body_ko: '기한은 8월 9일까지예요.', status: 'sent', delivered: 7103, failed: 0 },
+  {
+    id: 'snd_0031', sentAt: '2026-08-06T04:12:00.000Z', sentBy: 'zoyoong124@gmail.com',
+    mode: 'live', purpose: 'notice', topics: ['category:academic'], topicSetId: null,
+    noticeId: 'console:zoyoong124@gmail.com:m9x2a1',
+    title_ko: '2학기 수강신청 일정 안내', body_ko: '8월 12일 10시부터 시작해요.',
+    status: 'sent', delivered: 4791, failed: 29, cleanedUp: 29, dismissedWarnings: [],
+  },
+  {
+    id: 'snd_0030', sentAt: '2026-08-04T23:40:00.000Z', sentBy: 'zoyoong124@gmail.com',
+    mode: 'live', purpose: 'notice', topics: ['category:event'], topicSetId: null,
+    noticeId: 'console:zoyoong124@gmail.com:m9w7b3',
+    title_ko: '학생회 주최 여름 행사 안내', body_ko: '이번 주 금요일 오후 6시에 시작해요.',
+    // The one record with a real residue: 53 failed, 41 of which were dead
+    // tokens, so 12 are worth looking at. History must show that split.
+    status: 'partial', delivered: 1402, failed: 53, cleanedUp: 41, dismissedWarnings: ['body_ko-formal'],
+  },
+  {
+    id: 'snd_0029', sentAt: '2026-08-01T02:05:00.000Z', sentBy: 'zoyoong124@gmail.com',
+    mode: 'test', purpose: 'notice', topics: ['category:scholarship'], topicSetId: 'ts_seed',
+    noticeId: 'console:zoyoong124@gmail.com:m9t4c8',
+    title_ko: '국가장학금 2차 신청', body_ko: '기한은 8월 9일까지예요.',
+    status: 'sent', delivered: 2, failed: 0, cleanedUp: 0, dismissedWarnings: [],
+  },
 ];
 
 export function createMockApi(): ConsoleApi {
@@ -137,6 +194,16 @@ export function createMockApi(): ConsoleApi {
   const sessions = SESSIONS.map((s) => ({ ...s }));
   const layerSets = LAYER_SETS.map((l) => ({ ...l }));
   const sends = SENDS.map((s) => ({ ...s }));
+  const topicSets: TopicSet[] = [
+    {
+      id: 'ts_seed',
+      name: '전체 공지 구독자',
+      topics: ['category:academic', 'category:scholarship', 'category:career', 'category:recruitment', 'category:event'],
+      updatedBy: 'zoyoong124@gmail.com',
+      updatedAt: '2026-08-01T02:00:00.000Z',
+      staleTopicIds: [],
+    },
+  ];
 
   // Survives a reload. Without this a refresh or a pasted URL bounces to
   // sign-in, which makes every screen unreachable by address and hides that
@@ -182,45 +249,111 @@ export function createMockApi(): ConsoleApi {
     },
 
     async listTopics() {
-      return wait(TOPICS);
+      // subscriberCount recomputed from the device set rather than stored, so
+      // the picker's per-topic numbers and the union total cannot disagree.
+      return wait(
+        TOPICS.map((t) => ({
+          ...t,
+          subscriberCount: DEVICES.filter((d) => d.topics.includes(t.id)).length,
+        })),
+      );
     },
     async listSends() {
       return wait([...sends].sort((a, b) => b.sentAt.localeCompare(a.sentAt)));
     },
-    async estimateReach(topics) {
-      // Overlap is real: a student subscribed to both 학사 and their department
-      // is one device. The server deduplicates by token; this approximates with
-      // a flat 12% discount past the first topic so the number is never a naive
-      // sum, which would overstate reach and is the number people act on.
-      const picked = [...TOPICS]
-        .filter((t) => topics.includes(t.id))
-        .sort((a, b) => b.subscriberCount - a.subscriberCount);
-      if (picked.length === 0) return wait(0);
-      const total = picked.reduce(
-        (sum, t, i) => sum + (i === 0 ? t.subscriberCount : t.subscriberCount * 0.88),
-        0,
+    async countDevices(topics): Promise<DeviceCount> {
+      if (topics.length === 0) return wait({ devices: 0, byLocale: { ko: 0, en: 0 } });
+      // A real union — the same thing `array-contains-any` returns. A device
+      // subscribed to three of the selected topics is one device.
+      const matched = DEVICES.filter((d) => d.topics.some((t) => topics.includes(t)));
+      return wait({
+        devices: matched.length,
+        byLocale: {
+          ko: matched.filter((d) => d.locale === 'ko').length,
+          en: matched.filter((d) => d.locale === 'en').length,
+        },
+      });
+    },
+    async validate(draft) {
+      const findings = blocking(
+        lint({
+          purpose: draft.purpose,
+          title_ko: draft.title_ko,
+          body_ko: draft.body_ko,
+          title_en: draft.title_en,
+          body_en: draft.body_en,
+          topicCount: draft.topics.length,
+        }),
       );
-      return wait(Math.round(total));
+      return wait(findings.map((f) => f.message));
+    },
+    async testSend(draft): Promise<TestSendResult> {
+      const problems = await this.validate(draft);
+      if (problems.length > 0) return fail(problems[0] ?? '보낼 수 없어요.');
+      // Zero devices is a real outcome with a reason, not a silent success.
+      // The console signs in against a different Firebase project than the app,
+      // so this mapping is data an admin populates rather than something the
+      // token can tell us.
+      if (!user) return fail('로그인이 필요해요.');
+      const devices = 2;
+      return wait({ sent: devices, failed: 0, devices });
     },
     async send(draft: NotificationDraft) {
-      if (draft.topics.length === 0) return fail('토픽을 하나 이상 선택해 주세요.');
-      if (!draft.title_ko.trim()) return fail('제목을 입력해 주세요.');
-      if (!draft.body_ko.trim()) return fail('내용을 입력해 주세요.');
-      const reach = await this.estimateReach(draft.topics);
-      const failed = Math.round(reach * 0.006);
+      const problems = await this.validate(draft);
+      if (problems.length > 0) return fail(problems[0] ?? '보낼 수 없어요.');
+
+      const { devices } = await this.countDevices(draft.topics);
+      // Most of `failed` is the send garbage-collecting dead tokens, not an
+      // error. Modelled separately here so History can show the split rather
+      // than painting routine cleanup red.
+      const cleanedUp = Math.round(devices * 0.011);
+      const residualFailures = Math.round(devices * 0.001);
       const record: SendRecord = {
         id: `snd_${String(sends.length + 32).padStart(4, '0')}`,
         sentAt: new Date().toISOString(),
         sentBy: user?.email ?? 'unknown',
+        mode: 'live',
+        purpose: draft.purpose,
         topics: draft.topics,
+        topicSetId: null,
+        noticeId: `console:${user?.email ?? 'unknown'}:${Date.now().toString(36)}`,
         title_ko: draft.title_ko,
         body_ko: draft.body_ko,
-        status: failed > 0 ? 'partial' : 'sent',
-        delivered: reach - failed,
-        failed,
+        status: residualFailures > 0 ? 'partial' : 'sent',
+        delivered: devices - cleanedUp - residualFailures,
+        failed: cleanedUp + residualFailures,
+        cleanedUp,
+        dismissedWarnings: [],
       };
       sends.unshift(record);
       return wait(record);
+    },
+
+    async listTopicSets() {
+      return wait(topicSets);
+    },
+    async saveTopicSet(name, topics) {
+      if (!name.trim()) return fail('이름을 입력해 주세요.');
+      // Enforced at save rather than discovered at send.
+      if (topics.length > TOPIC_LIMIT) {
+        return fail(`토픽은 ${TOPIC_LIMIT}개까지 저장할 수 있어요.`);
+      }
+      const known = new Set(TOPICS.map((t) => t.id));
+      const set: TopicSet = {
+        id: `ts_${topicSets.length + 1}`,
+        name: name.trim(),
+        topics,
+        updatedBy: user?.email ?? 'unknown',
+        updatedAt: new Date().toISOString(),
+        staleTopicIds: topics.filter((t) => !known.has(t)),
+      };
+      topicSets.unshift(set);
+      return wait(set);
+    },
+    async deleteTopicSet(id) {
+      const i = topicSets.findIndex((t) => t.id === id);
+      if (i >= 0) topicSets.splice(i, 1);
+      return wait(undefined);
     },
 
     async listLayerSets() {

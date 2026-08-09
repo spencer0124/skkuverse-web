@@ -16,13 +16,16 @@
 import type { ConsoleApi } from './client';
 import type {
   ConsoleUser,
+  DeviceCount,
   LayerSet,
   NotificationDraft,
   Place,
   PublishResult,
   SendRecord,
   Session,
+  TestSendResult,
   Topic,
+  TopicSet,
 } from './types';
 
 /**
@@ -93,17 +96,73 @@ export function createHttpApi(): ConsoleApi {
 
     listTopics: () => request<Topic[]>('/console/notifications/topics'),
     listSends: () => request<SendRecord[]>('/console/notifications/sends'),
-    estimateReach: (topics) =>
-      request<{ reach: number }>('/console/notifications/reach', {
+
+    // Exact, from `.count()` on the same array-contains-any query the send
+    // uses. Sharing the query is the point: the number shown and the audience
+    // reached cannot diverge except by the seconds between them.
+    countDevices: (topics) =>
+      request<DeviceCount>('/console/notifications/count', {
         method: 'POST',
         body: JSON.stringify({ topics }),
-      }).then((r) => r.reach),
-    // The server proxies to the Cloud Function holding FCM_API_KEY. The key
-    // never reaches a browser, and the send is attributable in the server log.
+      }),
+
+    // Pre-flight, so the Cloud Function's 400s (over 30 topics, missing title)
+    // surface while the draft is still being edited rather than after someone
+    // has confirmed an irreversible action.
+    validate: (draft) =>
+      request<{ problems: string[] }>('/console/notifications/validate', {
+        method: 'POST',
+        body: JSON.stringify(draft),
+      }).then((r) => r.problems),
+
+    // Resolves the signed-in console user to their own app devices and sends
+    // only there. The console's Firebase project is not the app's, so that
+    // mapping is data an admin maintains, not something the token carries.
+    //
+    // The Cloud Function needs one addition for this: an optional
+    // `targetDeviceIds` that replaces the topic query AND skips the dead-token
+    // cleanup pass — a test must not deactivate the tester's own device.
+    testSend: (draft) =>
+      request<TestSendResult>('/console/notifications/test', {
+        method: 'POST',
+        body: JSON.stringify(draft),
+      }),
+
+    // The server holds FCM_API_KEY and proxies to the Cloud Function, per
+    // umbrella ADR 0006, so the key never reaches a browser and the send is
+    // attributable to a verified token.
+    //
+    // Two rules the server side must honour, neither of which the console can
+    // enforce from here:
+    //
+    //  1. Write the history row BEFORE calling the Cloud Function, with
+    //     `status: 'sending'`, then patch it with the result. Written after, a
+    //     CF timeout leaves a push that went out with no record of it — the
+    //     worst possible audit outcome for an irreversible action.
+    //  2. Generate `noticeId` server-side as `console:<consoleUid>:<ulid>`. The
+    //     Cloud Function requires it and a draft has no source for one.
+    //
+    // A 429 must carry `retryAfterSeconds` so the console can say when rather
+    // than just no.
     send: (draft: NotificationDraft) =>
       request<SendRecord>('/console/notifications/send', {
         method: 'POST',
         body: JSON.stringify(draft),
+      }),
+
+    // Saved audiences. Server-owned so the next operator inherits them, edits
+    // are attributable, and the 30-topic cap is enforced at save time. The
+    // server resolves `staleTopicIds` on read — a stored topic that no longer
+    // exists upstream fails silently, reaching fewer people than intended.
+    listTopicSets: () => request<TopicSet[]>('/console/notifications/topic-sets'),
+    saveTopicSet: (name, topics) =>
+      request<TopicSet>('/console/notifications/topic-sets', {
+        method: 'POST',
+        body: JSON.stringify({ name, topics }),
+      }),
+    deleteTopicSet: (id) =>
+      request<void>(`/console/notifications/topic-sets/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
       }),
 
     listLayerSets: () => request<LayerSet[]>('/console/eventmap/layer-sets'),

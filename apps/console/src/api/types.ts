@@ -31,7 +31,13 @@ export interface I18n {
  * become `category:<key>` and picker tabs become `<pickerKey>:<id>`, so a
  * department is `dept:cse-undergrad`. The console never builds a topic string
  * by hand — it picks from what the server lists, because a typo'd topic is
- * accepted by FCM and delivered to nobody.
+ * accepted and delivered to nobody.
+ *
+ * Not an FCM topic. Nothing in the fleet calls `subscribeToTopic`; this is a
+ * string in a Firestore array, and a send resolves device tokens with
+ * `.where('subscribedTopics','array-contains-any', topics)`. Two consequences
+ * run through this whole surface: the 30-topic cap below is Firestore's limit
+ * on that operator, and reach is exactly countable rather than estimable.
  */
 export interface Topic {
   /** The wire value, e.g. `category:academic` or `dept:cse-undergrad`. */
@@ -39,41 +45,140 @@ export interface Topic {
   label: I18n;
   /** Which tab group it belongs to, for grouping in the picker. */
   group: string;
-  /** Devices currently subscribed. Advisory — the server counts at send time. */
+  /** Devices currently subscribed. Recomputed on read; never stored. */
   subscriberCount: number;
+  /**
+   * Whether subscribers to this topic consented to marketing, as opposed to
+   * consenting to a category of notice.
+   *
+   * Someone who subscribed to `category:event` agreed to hear about 행사 공지,
+   * not about 제휴 마케팅. So an advertising send may only target topics where
+   * this is true, which turns a question about 정보통신망법 into a constraint the
+   * UI can enforce. It is false everywhere today, and that is the true state:
+   * there is currently no audience an advertising push may reach.
+   */
+  adConsent: boolean;
 }
+
+/**
+ * A saved, reusable set of topics — the slim version of Toss's 세그먼트.
+ *
+ * Server-owned rather than local: the point is the next operator reusing it,
+ * a bad send's first question is which set and who edited it, and the 30-topic
+ * cap has to be enforced at save time rather than discovered at send.
+ */
+export interface TopicSet {
+  id: string;
+  name: string;
+  topics: string[];
+  updatedBy: string;
+  updatedAt: string;
+  /**
+   * Topics in this set that no longer exist upstream.
+   *
+   * `categories.json` changes, and a stored string that no device subscribes to
+   * fails silently — the send succeeds and reaches fewer people than intended.
+   * The server resolves this on read so the console can show it.
+   */
+  staleTopicIds: string[];
+}
+
+/**
+ * Why a message is going out.
+ *
+ * Asked as a question rather than offered as a checkbox labelled 광고성, which
+ * is always left unticked. The answer decides which topics are eligible, whether
+ * `(광고)` is prepended, and whether the night-time window applies.
+ */
+export type SendPurpose = 'notice' | 'promotion';
+
+/** Where a tap lands. */
+export type TapTarget =
+  | { kind: 'none' }
+  /**
+   * The only destination the app can actually honour.
+   *
+   * `notification-router.ts` switches on `data.type` and has one case, `notice`,
+   * requiring both of these as strings. Any other shape returns false and the
+   * tap does nothing at all — and because the router ships inside the binary,
+   * the vocabulary is pinned to the oldest installed version rather than to the
+   * backend.
+   */
+  | { kind: 'notice'; sourceId: string; articleNo: string };
 
 /**
  * What the console posts to the server to send a push.
  *
  * The console never talks to the Cloud Function directly. Per umbrella ADR 0006
- * the server holds `FCM_API_KEY` and proxies, so the key never reaches a
- * browser and the send is attributable to a signed-in user in the server log.
+ * the server holds `FCM_API_KEY` and proxies, so the key never reaches a browser
+ * and the send is attributable to a signed-in user.
+ *
+ * No `zh`. The push pipeline models locale as `'ko' | 'en'` on purpose and folds
+ * Chinese-locale users into Korean; a `title_zh` would be accepted as unknown
+ * JSON and silently ignored.
  */
 export interface NotificationDraft {
+  purpose: SendPurpose;
   topics: string[];
   title_ko: string;
   body_ko: string;
+  /**
+   * Optional. Null means English-locale devices receive the Korean copy, which
+   * is a supported mode rather than an error.
+   *
+   * Must be null rather than `''`. The handler falls back with `??`, which
+   * catches null and undefined but not an empty string — so a cleared English
+   * field currently sends a blank title to every English device.
+   */
   title_en?: string | null;
   body_en?: string | null;
-  /** Optional deep link, e.g. `/notices/skku-main/12345` or a mini-app path. */
-  link?: string | null;
+  target: TapTarget;
 }
 
-export type SendStatus = 'sent' | 'partial' | 'failed';
+export type SendStatus = 'sending' | 'sent' | 'partial' | 'failed';
+export type SendMode = 'test' | 'live';
 
 export interface SendRecord {
   id: string;
   sentAt: string;
   /** The signed-in console user who sent it. */
   sentBy: string;
+  mode: SendMode;
+  purpose: SendPurpose;
   topics: string[];
+  topicSetId?: string | null;
+  /** Server-generated, `console:<consoleUid>:<ulid>`. The Cloud Function requires it. */
+  noticeId: string;
   title_ko: string;
   body_ko: string;
   status: SendStatus;
   /** Devices FCM accepted. */
   delivered: number;
+  /**
+   * Devices FCM rejected, including the dead tokens the send garbage-collects.
+   *
+   * Mostly not failure: subtract `cleanedUp` to get the residue worth worrying
+   * about. Reporting this number raw makes every healthy send look broken.
+   */
   failed: number;
+  /** Dead tokens deactivated during this send. A subset of `failed`. */
+  cleanedUp: number;
+  /** Style warnings the sender dismissed, kept so the choice is auditable. */
+  dismissedWarnings: string[];
+}
+
+export interface TestSendResult {
+  sent: number;
+  failed: number;
+  /** Zero is a real outcome, not an error — see `reason`. */
+  devices: number;
+  reason?: string | null;
+}
+
+export interface DeviceCount {
+  devices: number;
+  /** One number would hide that this is two messages to two audiences. */
+  byLocale: { ko: number; en: number };
 }
 
 // ── Festival (event map) ─────────────────────────────────────────────────────
