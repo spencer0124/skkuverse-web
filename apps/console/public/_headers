@@ -1,0 +1,12 @@
+# Hashed asset URLs never change their bytes. The shell must always revalidate,
+# and Pages already sends max-age=0, must-revalidate for it.
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The console is behind sign-in and shows other people's data. Keep it out of
+# search results and out of any shared cache.
+/*
+  X-Robots-Tag: noindex, nofollow
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff

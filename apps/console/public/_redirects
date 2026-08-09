@@ -1,0 +1,4 @@
+# SPA shell for any path the build did not emit, so a deep link and a reload
+# both reach the router. Pages already does this when a project ships no
+# 404.html; the rule pins it against someone adding one later.
+/*    /index.html   200
