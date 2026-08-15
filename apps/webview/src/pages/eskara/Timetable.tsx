@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { SegmentedControl } from '@skkuverse/ui';
 import { Page, Section } from '../../components/page';
-import { FESTIVAL } from './data/festival';
+import { ARCHIVE_NOTICE, FESTIVAL, FESTIVAL_LABEL } from './data/festival';
 import { IMAGES } from './data/images';
-import { ArchiveNotice, Figure, PageHeading } from './shared';
+import { ArchiveNotice, Figure, PageHeading } from '../../components/eskara';
 
 const MAPS = {
   day1: IMAGES.festivalMapDay1,
@@ -27,11 +27,11 @@ function Timetable() {
 
   return (
     <Page>
-      <ArchiveNotice />
-      <PageHeading title="타임테이블" lead={`${FESTIVAL.dates} · ${FESTIVAL.campus} 대운동장`} />
+      <ArchiveNotice notice={ARCHIVE_NOTICE} />
+      <PageHeading eyebrow={FESTIVAL_LABEL} title="타임테이블" lead={`${FESTIVAL.dates} · ${FESTIVAL.campus} 대운동장`} />
 
       <Section label="공연">
-        <Figure image={IMAGES.timetable} />
+        <Figure {...IMAGES.timetable} />
       </Section>
 
       <Section label="배치" title="페스티벌 맵" divided>
@@ -41,7 +41,7 @@ function Timetable() {
             <SegmentedControl.Item value="day2">2일차</SegmentedControl.Item>
           </SegmentedControl>
         </div>
-        <Figure image={map} />
+        <Figure {...map} />
       </Section>
     </Page>
   );

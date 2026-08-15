@@ -1,5 +1,6 @@
 import { Badge, Border, Paragraph, useAdaptive } from '@skkuverse/ui';
 import { Card, NoteRow, Page, Section } from '../../components/page';
+import { ARCHIVE_NOTICE, FESTIVAL_LABEL } from './data/festival';
 import { IMAGES } from './data/images';
 import {
   DOCUMENTS,
@@ -12,7 +13,7 @@ import {
   TICKET_BOOTHS,
   TICKET_HOURS,
 } from './data/entry';
-import { ArchiveNotice, Figure, InfoRow, PageHeading } from './shared';
+import { ArchiveNotice, Figure, InfoRow, PageHeading } from '../../components/eskara';
 
 /** The page a map pin's 입장 안내 button opens. */
 function Entry() {
@@ -20,8 +21,8 @@ function Entry() {
 
   return (
     <Page>
-      <ArchiveNotice />
-      <PageHeading title="입장 안내" lead={LEAD} />
+      <ArchiveNotice notice={ARCHIVE_NOTICE} />
+      <PageHeading eyebrow={FESTIVAL_LABEL} title="입장 안내" lead={LEAD} />
 
       <Section label="티켓" title="수령 시간">
         <Card>
@@ -43,7 +44,7 @@ function Entry() {
             </div>
           ))}
         </Card>
-        <Figure image={IMAGES.ticketBooths} caption="티켓부스 위치" />
+        <Figure {...IMAGES.ticketBooths} caption="티켓부스 위치" />
       </Section>
 
       <Section label="성균인" title="얼리 체크인" divided>
@@ -118,7 +119,7 @@ function Entry() {
             </div>
           ))}
         </Card>
-        <Figure image={IMAGES.stadiumGates} caption="게이트 위치" />
+        <Figure {...IMAGES.stadiumGates} caption="게이트 위치" />
       </Section>
 
       <Section label="외부인" title="환경부담금" divided>

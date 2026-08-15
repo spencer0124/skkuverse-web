@@ -1,15 +1,16 @@
 import { Border, Paragraph, useAdaptive } from '@skkuverse/ui';
 import { Card, NoteRow, Page, Section } from '../../components/page';
+import { ARCHIVE_NOTICE, FESTIVAL_LABEL } from './data/festival';
 import { DRESS_CODE, LEAD, PREORDER, SALES, TSHIRT } from './data/goods';
-import { ArchiveNotice, InfoRow, PageHeading } from './shared';
+import { ArchiveNotice, InfoRow, PageHeading } from '../../components/eskara';
 
 function Goods() {
   const adaptive = useAdaptive();
 
   return (
     <Page>
-      <ArchiveNotice />
-      <PageHeading title="굿즈 · 티셔츠" lead={LEAD} />
+      <ArchiveNotice notice={ARCHIVE_NOTICE} />
+      <PageHeading eyebrow={FESTIVAL_LABEL} title="굿즈 · 티셔츠" lead={LEAD} />
 
       <Section label="굿즈" title="현장 판매">
         <Card>

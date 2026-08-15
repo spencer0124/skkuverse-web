@@ -19,8 +19,17 @@ export const FESTIVAL = {
   archived: true,
 } as const;
 
-/** Shown at the top of every page while `FESTIVAL.archived` holds. */
-export const ARCHIVE_NOTICE = `${FESTIVAL.year}년 ESKARA 안내예요. 올해 정보가 확정되면 업데이트할게요.`;
+/**
+ * Shown at the top of every page while `FESTIVAL.archived` holds, and `null`
+ * once it does not — so flipping that one flag removes every banner at once
+ * rather than leaving five pages to remember.
+ */
+export const ARCHIVE_NOTICE: string | null = FESTIVAL.archived
+  ? `${FESTIVAL.year}년 ESKARA 안내예요. 올해 정보가 확정되면 업데이트할게요.`
+  : null;
+
+/** The eyebrow above every page title. */
+export const FESTIVAL_LABEL = `${FESTIVAL.year} ${FESTIVAL.name}`;
 
 export interface PageLink {
   path: string;

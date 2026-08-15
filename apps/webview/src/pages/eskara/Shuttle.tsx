@@ -1,7 +1,8 @@
 import { Border, Paragraph, useAdaptive } from '@skkuverse/ui';
 import { Card, NoteRow, Page, RouteDirection, Section } from '../../components/page';
+import { ARCHIVE_NOTICE, FESTIVAL_LABEL } from './data/festival';
 import { DAYS, FAST_TRACK, LEAD, SCHEDULE_POINTER } from './data/shuttle';
-import { ArchiveNotice, InfoRow, PageHeading } from './shared';
+import { ArchiveNotice, InfoRow, PageHeading } from '../../components/eskara';
 
 /**
  * What changes about the shuttle during the festival — not the timetable itself.
@@ -18,8 +19,8 @@ function Shuttle() {
 
   return (
     <Page>
-      <ArchiveNotice />
-      <PageHeading title="셔틀 증차" lead={LEAD} />
+      <ArchiveNotice notice={ARCHIVE_NOTICE} />
+      <PageHeading eyebrow={FESTIVAL_LABEL} title="셔틀 증차" lead={LEAD} />
 
       <Section label="시간표">
         <Card>

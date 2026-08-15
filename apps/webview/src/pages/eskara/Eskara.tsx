@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { ListRow, Paragraph, useAdaptive } from '@skkuverse/ui';
 import { Card, Page, Section } from '../../components/page';
-import { FESTIVAL, PAGES } from './data/festival';
-import { ArchiveNotice } from './shared';
+import { ARCHIVE_NOTICE, FESTIVAL, PAGES } from './data/festival';
+import { ArchiveNotice } from '../../components/eskara';
 
 /**
  * The index at `/eskara`.
@@ -21,7 +21,7 @@ function Eskara() {
 
   return (
     <Page>
-      <ArchiveNotice />
+      <ArchiveNotice notice={ARCHIVE_NOTICE} />
 
       <div style={{ padding: '28px 20px 4px' }}>
         <Paragraph typography="t7" fontWeight="semibold" color={adaptive.grey500}>
