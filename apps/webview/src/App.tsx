@@ -6,6 +6,11 @@ import NSCMap from './pages/nscmap/nscmap';
 import HSSCBusInfo from './pages/bus/HSSCBusInfo';
 import CampusBusInfo from './pages/bus/CampusBusInfo';
 import LostAndFound from './pages/lostandfound/LostAndFound';
+import Eskara from './pages/eskara/Eskara';
+import Entry from './pages/eskara/Entry';
+import Shuttle from './pages/eskara/Shuttle';
+import Timetable from './pages/eskara/Timetable';
+import Goods from './pages/eskara/Goods';
 
 /**
  * The component gallery, in development only.
@@ -49,6 +54,20 @@ function App() {
       </Route>
       <Route path="skku">
         <Route path="lostandfound" element={<LostAndFound />} />
+      </Route>
+      {/*
+        The festival pages. `index` is what the mini-app registry's startUrl and
+        a bare share link land on; the map's sheet buttons address the leaves
+        directly. Routes are append-only (ADR 0005 invariant 3) — a released
+        binary and a published snapshot both hold these strings, so they can
+        gain siblings but never be renamed.
+      */}
+      <Route path="eskara">
+        <Route index element={<Eskara />} />
+        <Route path="entry" element={<Entry />} />
+        <Route path="shuttle" element={<Shuttle />} />
+        <Route path="timetable" element={<Timetable />} />
+        <Route path="goods" element={<Goods />} />
       </Route>
       {Preview && (
         <Route
