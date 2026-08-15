@@ -21,6 +21,40 @@ importers:
         specifier: ^2.6.1
         version: 2.10.8
 
+  apps/console:
+    dependencies:
+      '@skkuverse/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
+      '@skkuverse/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      react:
+        specifier: ^19.1.0
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.8(react@19.2.8)
+      react-router-dom:
+        specifier: ^6.21.1
+        version: 6.30.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.2.4(@types/react@19.2.18)
+      '@vitejs/plugin-react':
+        specifier: ^4.4.1
+        version: 4.7.0(vite@6.4.3(jiti@1.21.7))
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vite:
+        specifier: ^6.3.0
+        version: 6.4.3(jiti@1.21.7)
+
   apps/webview:
     dependencies:
       '@skkuverse/bridge':
