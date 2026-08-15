@@ -57,9 +57,26 @@ copies of files owned by `skkuverse-app`, registered in the umbrella's
 `contracts/manifest.json` and hash-checked in CI. Change them upstream and let the contract
 sync bring the change here. Editing the copy makes CI red and is not the fix.
 
-**Web view hash routes are load-bearing.** The mobile app ships hardcoded web view URLs
-inside released binaries, so a route that exists today has to keep existing. Adding routes
-is safe; renaming or removing one breaks installed apps that cannot be updated.
+**Both apps route by path, and `base` must stay `'/'`.** A relative base emits
+`./assets/index-<hash>.js`, which the browser resolves against the current path — so
+`/bus/hssc/info` requests `/bus/hssc/assets/…`, Pages answers with `index.html` at HTTP 200
+and `text/html`, and the module script dies on the MIME check. A blank page with every
+status code green, invisible to any HTTP-level check. CI asserts the built `index.html`
+references `/assets/`, and both apps ship `public/_redirects` so a deep link and a reload
+reach the router.
+
+**Web view routes are append-only.** The mobile app ships hardcoded web view URLs inside
+released binaries, so a route that exists today has to keep existing. Adding routes is safe;
+renaming or removing one breaks installed apps that cannot be updated. Hash routing was
+nonetheless dropped in
+[skkuverse#46](https://github.com/spencer0124/skkuverse/issues/46), because the URL a
+released binary carries addresses `webview.skkuuniverse.com` — a separate deployment that
+still serves it — so no shipped client was asking this host for a `#/` route.
+
+**The console runs on mock data unless told otherwise.** `VITE_API_MODE` defaults to `mock`,
+and `http` throws without `VITE_API_BASE`. Setting `http` before `skkuverse-server`
+implements `/console/notifications/*` gives empty lists that read as empty data, which is
+worse than a console that refuses to start.
 
 **The native bridge is gated by exact origin, server-side.** The mobile app resolves web
 view capabilities per message against an allowlist owned by `skkuverse-server`, and it
