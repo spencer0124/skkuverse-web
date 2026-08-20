@@ -53,6 +53,27 @@ function relativeTime(iso: string, now: number): string {
   return new Date(then).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 }
 
+/**
+ * The href a row opens, or null for a row that is only text.
+ *
+ * The feed carries the same `actionType`/`actionValue` the push did, and a
+ * recovery surface that drops them is only half a recovery: a rain-delay
+ * notification whose tap opened the shuttle page should still reach the shuttle
+ * page an hour later.
+ *
+ * Only `webview` and `external` become links, and only when the value is an
+ * https URL. `route` is an in-app path with no meaning in a browser, and the
+ * https check is not decoration — an href built from server data is the one
+ * place this page could be made to emit `javascript:`. The server already
+ * refuses anything else on the way in; this is the second half of that, because
+ * a feed row outlives the validation that admitted it.
+ */
+function hrefFor(item: MiniAppNotification): string | null {
+  if (item.actionType !== 'webview' && item.actionType !== 'external') return null;
+  const value = item.actionValue;
+  return value && value.startsWith('https://') ? value : null;
+}
+
 function Inbox() {
   const adaptive = useAdaptive();
   const [state, setState] = useState<FeedState>({ status: 'loading' });
@@ -104,23 +125,38 @@ function Inbox() {
 
         {state.status === 'ready' && state.items.length > 0 ? (
           <div>
-            {state.items.map((item) => (
-              <ListRow
-                key={item.id}
-                contents={
-                  <ListRow.Texts
-                    type="2RowTypeA"
-                    top={item.title}
-                    bottom={item.body}
-                  />
-                }
-                right={
-                  <Paragraph typography="t7" color={adaptive.grey500}>
-                    {relativeTime(item.sentAt, now)}
-                  </Paragraph>
-                }
-              />
-            ))}
+            {state.items.map((item) => {
+              const href = hrefFor(item);
+              const row = (
+                <ListRow
+                  contents={
+                    <ListRow.Texts
+                      type="2RowTypeA"
+                      top={item.title}
+                      bottom={item.body}
+                    />
+                  }
+                  right={
+                    <Paragraph typography="t7" color={adaptive.grey500}>
+                      {relativeTime(item.sentAt, now)}
+                    </Paragraph>
+                  }
+                />
+              );
+              // Same tab: these are first-party festival pages, and the mini-app
+              // shell has no tab affordance for a user to come back from.
+              return href ? (
+                <a
+                  key={item.id}
+                  href={href}
+                  style={{ display: 'block', color: 'inherit', textDecoration: 'none' }}
+                >
+                  {row}
+                </a>
+              ) : (
+                <div key={item.id}>{row}</div>
+              );
+            })}
           </div>
         ) : null}
       </Section>

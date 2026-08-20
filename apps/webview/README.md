@@ -21,6 +21,16 @@ pnpm typecheck        # tsc --noEmit
 pnpm preview          # 빌드 결과 프리뷰
 ```
 
+## 환경변수
+
+| 변수 | 필수 | 무엇 |
+| --- | --- | --- |
+| `VITE_API_BASE` | 예 | skkuverse-server origin. `/eskara/inbox` 알림 피드가 유일한 소비자 |
+
+`.env.example` 참고. **Vite가 빌드 시점에 치환**하므로 Cloudflare Pages 빌드 환경에도 반드시 있어야
+한다 — 없으면 빌드도 CI도 통과하고 브라우저에서만 실패한다. 서버 쪽 `CORS_ORIGINS`에 이 앱의
+origin이 들어 있어야 하는 것도 같은 짝이다(둘 중 하나만으로는 아무것도 못 읽는다).
+
 ## 라우팅
 
 **경로 기반(`BrowserRouter`)이다.** 예전에는 해시(`#/`)였고, 서버가 넘겨주는 URL도 그 형태였다
