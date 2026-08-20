@@ -11,6 +11,7 @@ import Entry from './pages/eskara/Entry';
 import Shuttle from './pages/eskara/Shuttle';
 import Timetable from './pages/eskara/Timetable';
 import Goods from './pages/eskara/Goods';
+import Inbox from './pages/eskara/Inbox';
 
 /**
  * The component gallery, in development only.
@@ -68,6 +69,9 @@ function App() {
         <Route path="shuttle" element={<Shuttle />} />
         <Route path="timetable" element={<Timetable />} />
         <Route path="goods" element={<Goods />} />
+        {/* The notification feed. A push tap lands here when its payload names
+            this path; with no target the app opens the mini app itself. */}
+        <Route path="inbox" element={<Inbox />} />
       </Route>
       {Preview && (
         <Route
